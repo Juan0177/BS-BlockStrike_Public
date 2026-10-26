@@ -1,12 +1,9 @@
-- **Nuove mappe**: Carbone, ispirata a Coal, con la cava, il nastro inclinato e il tunnel in pendenza; Crocevia,
-  una città grande a isolati mescolati con un anello rialzato, due torri da cecchino alte 22 m, passerelle tra i
-  tetti e una rete di gallerie sotto.
-- **ICBJR**: con 30 uccisioni di fila senza morire si tiene premuto F per 5 secondi. Dopo 20 secondi di conto alla
-  rovescia per tutti, un missile cade al centro della mappa e uccide tutti gli avversari.
-- **Prima linea**: nuova modalità come Frontline di COD, a round con le basi fisse: 50 uccisioni o 10 minuti per
-  round, vince chi ne vince 2.
-- **Granate**: frammentazione, Semtex e Tripwire uccidono in tutto il raggio; si sopravvive solo con Antiesplosivo.
-- **Movimento**: rampe vere (45°, 1:2, 1:4) e scale a pioli, che usano anche i bot.
-- **Radar**: in Tutti contro tutti e Gun Game l'UAV è sempre attivo, come in COD.
-- **Armaiolo e sito**: pannello con la rosata dei pompa (pallini a segno, danno e colpi necessari a ogni distanza).
-- **Tasti**: il corpo a corpo resta su V; F ora lancia l'ICBJR.
+- **Icona e namecard**: dal Profilo ognuno carica la sua icona quadrata e una namecard 4:1 (come le calling card
+  di COD), anche GIF animate. Si ritagliano a mano con lo zoom, si vede l'anteprima e vengono compresse prima di
+  salvarle. Si vedono in lobby (clic sull'icona per ingrandirle), nel kill feed, nella killcam e nei risultati.
+  L'host le vede e può toglierle dalla scheda Accessi.
+- **Bot**: ognuno ha la sua icona e tutti la namecard dei quattro maghi.
+- **Killcam**: in basso l'icona e la namecard di chi ti ha ucciso; nel confronto le icone di tutti e due.
+- **Primo accesso**: chi si registra vede un benvenuto con i comandi e le regole; dopo ogni aggiornamento compaiono
+  una volta le novità della versione. Un launcher più vecchio del gioco dell'host mostra un avviso con il link al sito.
+- **Varie**: icona del gioco nella scheda del browser; nella scena dell'ICBJR il terreno non copre più la mappa.

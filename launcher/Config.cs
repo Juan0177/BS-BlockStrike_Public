@@ -4,4 +4,5 @@ static class Config {
   public const string Rete = "";
   public const string Host = "";
   public const int Porta = 3000;
+  public const string Versione = "1.2.0";
 }

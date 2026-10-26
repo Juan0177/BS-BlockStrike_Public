@@ -333,7 +333,8 @@ class Finestra : Form {
     Interfaccia(delegate {
       if (!Attivo(questo)) return;
       stato.Text = "Apro il gioco...";
-      Launcher.ApriGioco(url);
+      // La versione del launcher: se è vecchia il gioco avvisa di scaricare quella nuova
+      Launcher.ApriGioco(url + "?launcher=" + Config.Versione);
       Codice = 0;
       Close();
     });
