@@ -90,8 +90,58 @@ function pianta(m) {
     if (p.squadra == null) continue;
     s.append(svg('circle', { cx: p.x, cy: p.z, r: 0.9 * k, fill: COLORI_SQUADRA[p.squadra], stroke: '#ffffff', 'stroke-width': 0.35 * k }));
   }
+  // Dove passa il taglio della sezione
+  const S = m.sezione;
+  if (S) {
+    const linea = S.asse === 'z' ? { x1: S.pos, y1: 0, x2: S.pos, y2: m.profondita } : { x1: 0, y1: S.pos, x2: m.larghezza, y2: S.pos };
+    s.append(svg('line', { ...linea, stroke: '#ffd166', 'stroke-width': 0.6 * k, 'stroke-dasharray': `${2.5 * k} ${1.5 * k}`, opacity: 0.9 }));
+  }
   box.append(s);
   return box;
+}
+
+// Sezione: la mappa tagliata lungo la linea tratteggiata e vista di lato (altezze esagerate), con le zone alla loro quota
+function sezione(m) {
+  const S = m.sezione, E = S.esagera, H = S.altezza * E;
+  const box = el('div', { class: 'pianta' }, el('img', { src: S.img, alt: `Sezione di ${m.nome}`, width: S.lunghezza, height: H }));
+  const s = svg('svg', { viewBox: `0 0 ${S.lunghezza} ${H}`, 'aria-hidden': 'true' });
+  const k = S.lunghezza / 60;
+  for (const h of m.hardpoint) {
+    const [a0, a1] = S.asse === 'z' ? h.x : h.z;
+    if (S.pos < a0 || S.pos > a1) continue; // zona non attraversata dal taglio
+    const [u0, u1] = S.asse === 'z' ? h.z : h.x;
+    const y0 = (S.altezza - h.y1) * E, alt = (h.y1 - h.y) * E;
+    s.append(svg('rect', { x: u0, y: y0, width: u1 - u0, height: alt, fill: 'rgba(255,255,255,0.12)', stroke: '#ffffff', 'stroke-width': 0.6 * k, rx: 0.5 * k }));
+    const t = svg('text', { x: (u0 + u1) / 2, y: y0 + alt / 2, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': Math.min(3 * k, alt * 0.8), 'font-weight': 700, fill: '#ffffff', stroke: '#111214', 'stroke-width': 0.45 * k, 'paint-order': 'stroke' });
+    t.textContent = h.nome;
+    s.append(t);
+  }
+  box.append(s);
+  return box;
+}
+
+// Pianta e sezione: si passa dall'una all'altra con le frecce
+function vistePianta(m) {
+  const S = m.sezione;
+  const dir = S?.asse === 'z' ? 'da nord (a sinistra) a sud' : 'da ovest (a sinistra) a est';
+  const viste = [
+    { titolo: 'Vista dall\'alto', nota: S ? 'La linea tratteggiata è il taglio della sezione.' : '', el: pianta(m) },
+    ...(S ? [{ titolo: 'Sezione', nota: `Mappa tagliata lungo la linea tratteggiata e vista di lato, ${dir}; altezze ×${S.esagera}.`, el: sezione(m) }] : []),
+  ];
+  let i = 0;
+  const titolo = el('span', { class: 'titolo-vista' });
+  const nota = el('p', { class: 'nota-vista' });
+  const mostra = (j) => {
+    i = (j + viste.length) % viste.length;
+    viste.forEach((v, n) => { v.el.hidden = n !== i; });
+    titolo.textContent = viste[i].titolo;
+    nota.textContent = viste[i].nota;
+  };
+  const freccia = (d, segno, etichetta) => el('button', { type: 'button', class: 'freccia-vista', 'aria-label': etichetta, onclick: () => mostra(i + d) }, segno);
+  mostra(0);
+  return el('div', { class: 'viste-pianta' },
+    viste.length > 1 ? el('div', { class: 'barra-vista' }, freccia(-1, '‹', 'Vista precedente'), titolo, freccia(1, '›', 'Vista successiva')) : null,
+    ...viste.map((v) => v.el), nota);
 }
 
 function galleria(m) {
@@ -130,7 +180,7 @@ function mostraMappa(m) {
       el('ul', { class: 'etichette' },
         el('li', { testo: `${num(m.larghezza)} × ${num(m.profondita)} m` }),
         m.hardpoint.length ? el('li', { testo: `${m.hardpoint.length} zone Hardpoint` }) : null),
-      pianta(m),
+      vistePianta(m),
       el('div', { class: 'legenda' },
         squadre ? el('span', {}, el('i', { style: 'background:var(--squadra-0)' }), 'Partenza squadra blu') : null,
         squadre ? el('span', {}, el('i', { style: 'background:var(--squadra-1)' }), 'Partenza squadra arancione') : null,

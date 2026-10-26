@@ -121,6 +121,14 @@ section { padding: 56px 0 8px; }
 .pianta { position: relative; }
 .pianta img { width: 100%; height: auto; image-rendering: pixelated; border-radius: 6px; }
 .pianta svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pianta[hidden] { display: none; }
+.barra-vista { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.titolo-vista { font-weight: 700; font-size: 0.92rem; }
+.freccia-vista { width: 34px; height: 30px; border-radius: 6px; border: 1px solid var(--linea); background: var(--superficie-2);
+  color: var(--testo); font-size: 1.25rem; line-height: 1; cursor: pointer; }
+.freccia-vista:hover { border-color: var(--accento); color: var(--accento); }
+.nota-vista { margin: 6px 0 0; font-size: 0.8rem; color: var(--tenue); }
+.nota-vista:empty { display: none; }
 .legenda { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.85rem; color: var(--secondario); margin-top: 8px; }
 .legenda span { display: inline-flex; align-items: center; gap: 6px; }
 .legenda i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
