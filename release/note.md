@@ -1,10 +1,12 @@
-Prima versione pubblica: sito del gioco e launcher scaricabile.
-
-- **Launcher**: finestra con icona e barra di caricamento al posto della console; il gioco si apre in una
-  finestra di Edge massimizzata. L'exe pubblico non contiene la rete dell'host: al primo avvio si incolla il
-  codice invito che manda l'host.
-- **Gioco**: 9 mappe, 5 modalità (Team Deathmatch, Tutti contro tutti, Hardpoint, Gun Game, Umani contro IA),
-  18 armi con il loro gimmick, 8 granate, 13 perk e 7 scorestreak, partite fino a 6v6 completate dai bot.
-- **Ultime aggiunte**: ping alla squadra con il perk Bersaglio marcato, bot che raccolgono armi a terra ed
-  evitano fuoco e tripwire, tripwire distruggibili, suoni dedicati per le granate nuove, grafica più leggera
-  (meno chiamate di disegno per personaggi, armi e particelle).
+- **Nuove mappe**: Carbone, ispirata a Coal, con la cava, il nastro inclinato e il tunnel in pendenza; Crocevia,
+  una città grande a isolati mescolati con un anello rialzato, due torri da cecchino alte 22 m, passerelle tra i
+  tetti e una rete di gallerie sotto.
+- **ICBJR**: con 30 uccisioni di fila senza morire si tiene premuto F per 5 secondi. Dopo 20 secondi di conto alla
+  rovescia per tutti, un missile cade al centro della mappa e uccide tutti gli avversari.
+- **Prima linea**: nuova modalità come Frontline di COD, a round con le basi fisse: 50 uccisioni o 10 minuti per
+  round, vince chi ne vince 2.
+- **Granate**: frammentazione, Semtex e Tripwire uccidono in tutto il raggio; si sopravvive solo con Antiesplosivo.
+- **Movimento**: rampe vere (45°, 1:2, 1:4) e scale a pioli, che usano anche i bot.
+- **Radar**: in Tutti contro tutti e Gun Game l'UAV è sempre attivo, come in COD.
+- **Armaiolo e sito**: pannello con la rosata dei pompa (pallini a segno, danno e colpi necessari a ogni distanza).
+- **Tasti**: il corpo a corpo resta su V; F ora lancia l'ICBJR.
