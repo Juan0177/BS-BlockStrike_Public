@@ -45,7 +45,9 @@ $('#tema').addEventListener('click', () => {
 sistemaScuro.addEventListener('change', iconaTema);
 iconaTema();
 
-const d = await (await fetch('dati.json')).json();
+// L'impronta dei dati (messa da crea-sito.js) evita di leggere quelli vecchi dalla cache del browser
+const versioneDati = document.querySelector('meta[name="versione-dati"]')?.content;
+const d = await (await fetch(versioneDati ? `dati.json?v=${versioneDati}` : 'dati.json')).json();
 
 $('#versione').textContent = `Versione ${d.versione} · aggiornato il ${new Date(d.data).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}`;
 $('#aggiornato').textContent = `BS-BlockStrike ${d.versione}, dati del ${new Date(d.data).toLocaleDateString('it-IT')}.`;
