@@ -166,7 +166,13 @@ section { padding: 56px 0 8px; }
 .statistiche div { background: var(--superficie-2); border-radius: 6px; padding: 8px 12px; }
 .statistiche dt { font-size: 0.78rem; color: var(--tenue); }
 .statistiche dd { margin: 0; font-weight: 600; }
-.pannelli { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px; }
+.controlli-arma { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 10px 16px; margin-bottom: 16px; background: var(--superficie-2); border-radius: var(--raggio); }
+.controlli-arma .distanza { flex: 1 1 320px; margin: 0; }
+.pannelli { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.pannelli.senza-rosata > :nth-child(3) { grid-column: 1 / -1; }
+.scheda { border: 1px solid var(--linea); border-radius: var(--raggio); padding: 16px; min-width: 0; }
+.scheda h4 .tenue { color: var(--tenue); font-weight: 400; }
+.scheda .tabella-scorre { border: 0; }
 .pannelli h4 { margin-bottom: 4px; }
 .nota { font-size: 0.85rem; color: var(--tenue); margin: 4px 0 12px; }
 
@@ -201,18 +207,18 @@ section { padding: 56px 0 8px; }
 .legenda-grafico i { width: 16px; height: 3px; display: inline-block; border-radius: 2px; }
 
 /* Rosata dei pompa */
-.rosata-sito { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--linea); }
-.testa-rosata { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
 .filtri.piccoli { margin: 0; }
 .filtri.piccoli button { padding: 4px 12px; font-size: 0.85rem; }
-.corpo-rosata { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 24px; align-items: center; }
+.corpo-rosata { display: grid; grid-template-columns: minmax(0, 190px) minmax(0, 1fr); gap: 20px; align-items: center; }
+.numeri-rosata { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.numeri-rosata div { background: var(--superficie-2); border-radius: 6px; padding: 8px 12px; }
+.numeri-rosata dt { font-size: 0.78rem; color: var(--tenue); }
+.numeri-rosata dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
 .disegno-rosata svg { width: 100%; display: block; background: var(--superficie-2); border-radius: 6px; }
 .disegno-rosata .terra { stroke: var(--asse); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
 .disegno-rosata .cerchio { fill: none; stroke: var(--tenue); stroke-width: 1px; vector-effect: non-scaling-stroke; }
 .disegno-rosata .pallino { fill: var(--superficie); stroke: var(--testo); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
 .disegno-rosata .pallino.a-segno { fill: var(--accento); stroke: var(--superficie); }
-.dati-rosata { display: grid; gap: 8px; margin: 0; color: var(--secondario); }
-.dati-rosata b { color: var(--testo); font-variant-numeric: tabular-nums; }
 .legenda-grafico i.punto-pieno, .legenda-grafico i.punto-vuoto { width: 10px; height: 10px; border-radius: 50%; }
 .legenda-grafico i.punto-pieno { background: var(--accento); }
 .legenda-grafico i.punto-vuoto { border: 1.5px solid var(--testo); }
@@ -231,6 +237,7 @@ section { padding: 56px 0 8px; }
 
 @media (max-width: 860px) {
   .apertura, .mappa, .pannelli, .corpo-rosata { grid-template-columns: minmax(0, 1fr); }
+  .pannelli.senza-rosata > :nth-child(3) { grid-column: auto; }
   .disegno-rosata { max-width: 260px; }
   .apertura h1 { font-size: 2rem; }
   .barra { gap: 14px; }
@@ -246,3 +253,7 @@ section { padding: 56px 0 8px; }
   .streak .livello { grid-column: 2; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* Tabella dei TTK: tutte le distanze allineate a destra; niente riga sotto l'ultima zona */
+.tabella.tabella-ttk th:nth-child(2), .tabella.tabella-ttk td:nth-child(2) { text-align: right; }
+.tabella tbody tr:last-child th { border-bottom: 0; }

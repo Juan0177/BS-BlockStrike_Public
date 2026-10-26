@@ -225,9 +225,11 @@ const SAGOMA = [
   ['gambe', 62, 124, 28, 86],
 ];
 
-function pannelloCorpo(a) {
-  const fine = a.ttk.bustoBasso.tempo.length - 1;
-  let dist = 0;
+// La barra in cima ai pannelli (distanza e, per i pompa, anca o mirando) guida tutte le schede
+let ascoltaDistanza = [];
+
+// Scheda dei moltiplicatori: sagoma colorata e, per zona, colpi e TTK alla distanza scelta
+function schedaMoltiplicatori(a) {
   const corpo = svg('svg', { viewBox: '0 0 120 214', role: 'img', 'aria-label': 'Moltiplicatori di danno per zona del corpo' });
   for (const [z, x, y, w, h] of SAGOMA) {
     const r = svg('rect', { x, y, width: w, height: h, rx: 3, fill: coloreMolt(a.moltiplicatori[z]) });
@@ -235,56 +237,48 @@ function pannelloCorpo(a) {
     corpo.append(r);
   }
   const zone = el('ul', { class: 'zone' });
-  const uscita = el('output', { testo: '0 m' });
-  const aggiorna = () => {
-    uscita.textContent = `${dist} m`;
-    zone.replaceChildren(...ZONE.map((z) => {
-      const u = ttkA(a, z, dist);
-      return el('li', {}, el('i', { style: `background:${coloreMolt(a.moltiplicatori[z])}` }), el('span', { testo: d.zone[z] }),
-        el('span', { class: 'molt', testo: molt(a.moltiplicatori[z]) }),
-        el('span', { class: 'esito', testo: esito(u) }));
-    }));
-  };
-  aggiorna();
-  const cursore = el('input', { type: 'range', min: 0, max: fine, value: 0, step: 1, 'aria-label': 'Distanza in metri', oninput: (e) => {
-    dist = Number(e.target.value);
-    aggiorna();
-    graficoDist?.(dist);
-  } });
-  const scala = el('div', { class: 'scala' }, 'meno danno', [1, 2, 3, 4, 5].map((n) => el('i', { style: `background:var(--m${n})` })), 'più danno');
-
-  // Tabella equivalente (colpi e TTK alle distanze tipiche)
-  const distanze = d.distanzeTabella.filter((x) => x <= fine);
-  const tabella = el('table', { class: 'tabella tabella-ttk' },
-    el('caption', { testo: 'Colpi e TTK per zona e distanza' }),
-    el('thead', {}, el('tr', {}, el('th', { scope: 'col', testo: 'Zona' }), distanze.map((x) => el('th', { scope: 'col', testo: `${x} m` })))),
-    el('tbody', {}, ZONE.map((z) => el('tr', {}, el('th', { scope: 'row', testo: d.zone[z] }), distanze.map((x) => {
-      const u = ttkA(a, z, x);
-      return el('td', { testo: u.colpi === 1 ? '1 colpo' : `${u.colpi} · ${secondi(u.tempo)}` });
-    })))));
-
-  return el('div', {},
-    el('h4', { testo: 'Moltiplicatori sul corpo' }),
-    el('p', { class: 'nota', testo: a.tipo === 'pallini' ? 'Con tutti i pallini a segno.' : 'Danno del colpo × moltiplicatore della zona colpita.' }),
-    el('label', { class: 'distanza' }, 'Distanza', cursore, uscita),
+  const titolo = el('span', { class: 'tenue' });
+  ascoltaDistanza.push((dist) => {
+    titolo.textContent = ` a ${dist} m`;
+    zone.replaceChildren(...ZONE.map((z) => el('li', {}, el('i', { style: `background:${coloreMolt(a.moltiplicatori[z])}` }), el('span', { testo: d.zone[z] }),
+      el('span', { class: 'molt', testo: molt(a.moltiplicatori[z]) }), el('span', { class: 'esito', testo: esito(ttkA(a, z, dist)) }))));
+  });
+  return el('section', { class: 'scheda' },
+    el('h4', {}, 'Moltiplicatori sul corpo', titolo),
+    el('p', { class: 'nota', testo: a.pallini ? 'Colpi e TTK con tutti i pallini a segno.' : 'Danno del colpo × moltiplicatore della zona colpita.' }),
     el('div', { class: 'corpo' }, corpo, zone),
-    scala,
-    el('div', { class: 'tabella-scorre', style: 'margin-top:16px' }, tabella));
+    el('div', { class: 'scala' }, 'meno danno', [1, 2, 3, 4, 5].map((n) => el('i', { style: `background:var(--m${n})` })), 'più danno'));
 }
 
-let graficoDist = null;
+// Scheda della tabella: colpi e TTK per zona alle distanze tipiche (per i pompa quelle utili, fino a 20 m)
+function schedaTabella(a) {
+  const distanze = (a.pallini ? [5, 10, 15, 20] : d.distanzeTabella).filter((x) => x <= distMax(a));
+  return el('section', { class: 'scheda' },
+    el('h4', { testo: 'Colpi e TTK per zona' }),
+    el('p', { class: 'nota', testo: a.pallini ? 'Con tutti i pallini a segno: nella rosata quanti vanno a segno davvero.' : 'Tutti i colpi nella stessa zona.' }),
+    el('div', { class: 'tabella-scorre' }, el('table', { class: 'tabella tabella-ttk' },
+      el('thead', {}, el('tr', {}, el('th', { scope: 'col', testo: 'Zona' }), distanze.map((x) => el('th', { scope: 'col', testo: `${x} m` })))),
+      el('tbody', {}, ZONE.map((z) => el('tr', {}, el('th', { scope: 'row', testo: d.zone[z] }), distanze.map((x) => {
+        const u = ttkA(a, z, x);
+        return el('td', { testo: u.colpi === 1 ? '1 colpo' : `${u.colpi} · ${secondi(u.tempo)}` });
+      })))))));
+}
 
 // TTK alla pancia in funzione della distanza: l'arma scelta in evidenza, le altre della stessa classe in grigio
+// Pompa senza slug: oltre 20 m e 2 s il grafico non dice niente di utile
+const LIMITI_POMPA = { dist: 20, tempo: 2000 };
+const distMax = (a) => Math.min(a.ttk.bustoBasso.tempo.length - 1, a.pallini ? LIMITI_POMPA.dist : Infinity);
+
 function graficoTtk(a) {
   const altre = ARMI.filter((x) => x.id !== a.id && x.ttk && x.classe === a.classe);
   const serie = [a, ...altre];
-  const W = 560, H = 300, M = { s: 44, d: 64, a: 12, b: 34 };
-  const maxD = Math.max(...serie.map((x) => x.ttk.bustoBasso.tempo.length - 1));
-  const maxT = Math.max(200, ...serie.flatMap((x) => x.ttk.bustoBasso.tempo));
+  const W = 560, H = 230, M = { s: 44, d: 64, a: 12, b: 34 };
+  const maxD = Math.max(...serie.map(distMax));
+  const maxT = Math.min(a.pallini ? LIMITI_POMPA.tempo : Infinity, Math.max(200, ...serie.flatMap((x) => x.ttk.bustoBasso.tempo.slice(0, maxD + 1))));
   const passoT = maxT > 1500 ? 500 : maxT > 600 ? 200 : 100;
   const topT = Math.ceil(maxT / passoT) * passoT;
   const X = (dist) => M.s + (dist / maxD) * (W - M.s - M.d);
-  const Y = (t) => H - M.b - (t / topT) * (H - M.a - M.b);
+  const Y = (t) => H - M.b - (Math.min(t, topT) / topT) * (H - M.a - M.b);
   const s = svg('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': `TTK alla pancia di ${a.nome} per distanza` });
   const griglia = svg('g', { class: 'griglia-asse' });
   for (let t = 0; t <= topT; t += passoT) {
@@ -307,12 +301,12 @@ function graficoTtk(a) {
   const percorso = (x) => {
     const t = x.ttk.bustoBasso.tempo;
     let p = `M${X(0)},${Y(t[0])}`;
-    for (let i = 1; i < t.length; i++) p += `H${X(i)}V${Y(t[i])}`;
+    for (let i = 1; i <= Math.min(t.length - 1, maxD); i++) p += `H${X(i)}V${Y(t[i])}`;
     return p;
   };
   for (const x of altre) s.append(svg('path', { d: percorso(x), class: 'altra' }));
   s.append(svg('path', { d: percorso(a), class: 'scelta' }));
-  const ultimo = a.ttk.bustoBasso.tempo.length - 1;
+  const ultimo = distMax(a);
   const et = svg('text', { x: X(ultimo) + 6, y: Y(a.ttk.bustoBasso.tempo[ultimo]), class: 'etichetta-scelta', 'dominant-baseline': 'central' });
   et.textContent = a.nome.split(' ')[0];
   s.append(et);
@@ -322,6 +316,7 @@ function graficoTtk(a) {
   const punto = svg('circle', { class: 'punto', r: 4.5, visibility: 'hidden' });
   s.append(croce, punto);
   const segna = (dist) => {
+    dist = Math.min(dist, maxD);
     const t = ttkA(a, 'bustoBasso', dist);
     croce.setAttribute('x1', X(dist));
     croce.setAttribute('x2', X(dist));
@@ -332,7 +327,7 @@ function graficoTtk(a) {
     }
     punto.setAttribute('visibility', t ? 'visible' : 'hidden');
   };
-  graficoDist = segna;
+  ascoltaDistanza.push(segna);
   const zonaMouse = svg('rect', { x: M.s, y: 0, width: W - M.s - M.d, height: H, fill: 'transparent' });
   zonaMouse.addEventListener('pointermove', (e) => {
     const r = s.getBoundingClientRect();
@@ -349,9 +344,9 @@ function graficoTtk(a) {
   });
   s.append(zonaMouse);
 
-  return el('div', { class: 'grafico' },
+  return el('section', { class: 'scheda grafico' },
     el('h4', { testo: 'TTK alla pancia per distanza' }),
-    el('p', { class: 'nota', testo: 'Il tempo sale a gradini quando con il calo del danno serve un colpo in più. Passa il mouse per i valori.' }),
+    el('p', { class: 'nota', testo: a.pallini ? `Con tutti i pallini a segno, fino a ${LIMITI_POMPA.dist} m: oltre, senza slug, la rosata è troppo larga.` : 'Sale a gradini quando con il calo del danno serve un colpo in più. Passa il mouse per i valori.' }),
     s,
     el('div', { class: 'legenda-grafico' },
       el('span', {}, el('i', { style: 'background:var(--accento)' }), a.nome),
@@ -362,17 +357,14 @@ function graficoTtk(a) {
 const statoRosata = { dist: 10, mirando: true };
 const COLORE_ZONA = { testa: 'var(--z-testa)', bustoAlto: 'var(--z-petto)', bustoBasso: 'var(--z-pancia)', braccia: 'var(--z-braccia)', gambe: 'var(--z-gambe)' };
 
-function pannelloRosata(a) {
+function schedaRosata(a) {
   const R = a.rosata, fine = R.da + R.anca.length - 1;
-  statoRosata.dist = Math.min(Math.max(statoRosata.dist, R.da), fine);
   const disegno = el('div', { class: 'disegno-rosata' });
-  const dati = el('p', { class: 'dati-rosata' });
-  const uscita = el('output');
-  const mira = el('div', { class: 'filtri piccoli', role: 'group', 'aria-label': 'Come si spara' });
+  const numeri = el('dl', { class: 'numeri-rosata' });
+  const titolo = el('span', { class: 'tenue' });
   const aggiorna = () => {
     const r = (statoRosata.mirando ? R.mira : R.anca)[statoRosata.dist - R.da];
-    uscita.textContent = `${statoRosata.dist} m`;
-    for (const b of mira.children) b.setAttribute('aria-pressed', String((b.dataset.mira === '1') === statoRosata.mirando));
+    titolo.textContent = ` a ${statoRosata.dist} m, ${statoRosata.mirando ? 'mirando' : "dall'anca"}`;
     const meta = Math.max(1.05, r.raggio + 0.4), cy = 1.0, punto = Math.max(0.03, meta * 0.022);
     const s = svg('svg', { viewBox: `${-meta} ${-(cy + meta)} ${2 * meta} ${2 * meta}`, role: 'img', 'aria-label': `Pallini di uno sparo a ${statoRosata.dist} m` });
     s.append(svg('line', { x1: -meta, x2: meta, y1: 0, y2: 0, class: 'terra' }));
@@ -380,31 +372,54 @@ function pannelloRosata(a) {
     s.append(svg('circle', { cx: 0, cy: -d.rosata.mira, r: r.raggio, class: 'cerchio' }));
     for (const [x, y, aSegno] of r.esempio) s.append(svg('circle', { cx: x, cy: -y, r: punto, class: aSegno ? 'pallino a-segno' : 'pallino' }));
     disegno.replaceChildren(s);
-    const spari = r.spari >= 10 ? 'più di 10 spari' : `${num(r.spari, 1)} spari (${num(r.ttk, 2)} s)`;
-    dati.replaceChildren(
-      el('span', {}, 'Pallini a segno in media: ', el('b', { testo: `${num(r.aSegno, 1)} di ${a.pallini}` })),
-      el('span', {}, 'Danni a sparo: ', el('b', { testo: num(r.danno) })),
-      el('span', {}, 'Uccide con uno sparo: ', el('b', { testo: `${num(r.unoSparo * 100)}%` }), ' dei casi'),
-      el('span', {}, 'Per uccidere in media: ', el('b', { testo: spari })));
+    numeri.replaceChildren(...[
+      ['Pallini a segno', `${num(r.aSegno, 1)} di ${a.pallini}`],
+      ['Danni a sparo', num(r.danno)],
+      ['Uccide con 1 sparo', `${num(r.unoSparo * 100)}%`],
+      ['Spari per uccidere', r.spari >= 10 ? 'più di 10' : `${num(r.spari, 1)} (${num(r.ttk, 2)} s)`],
+    ].map(([k, v]) => el('div', {}, el('dt', { testo: k }), el('dd', { testo: v }))));
   };
-  for (const [v, t] of [['0', 'Anca'], ['1', 'Mirando']]) {
-    mira.append(el('button', { type: 'button', 'data-mira': v, testo: t, onclick: () => { statoRosata.mirando = v === '1'; aggiorna(); } }));
-  }
-  const cursore = el('input', { type: 'range', min: R.da, max: fine, step: 1, value: statoRosata.dist, 'aria-label': 'Distanza in metri',
-    oninput: (e) => { statoRosata.dist = Number(e.target.value); aggiorna(); } });
-  aggiorna();
-  return el('div', { class: 'rosata-sito' },
-    el('div', { class: 'testa-rosata' }, el('h4', { testo: 'Rosata' }), mira),
-    el('p', { class: 'nota', testo: `Dove finiscono gli ${a.pallini} pallini contro un avversario in piedi, sparando fermi e mirando al centro del petto. Medie su ${d.rosata.spari} spari con la dispersione e le hitbox del gioco; il disegno è uno sparo di esempio. La tabella sopra invece conta tutti i pallini a segno.` }),
-    el('label', { class: 'distanza' }, 'Distanza', cursore, uscita),
+  ascoltaDistanza.push((dist) => {
+    statoRosata.dist = Math.min(Math.max(dist, R.da), fine);
+    aggiorna();
+  });
+  return el('section', { class: 'scheda' },
+    el('h4', {}, 'Rosata', titolo),
+    el('p', { class: 'nota', testo: `Medie su ${d.rosata.spari} spari contro un avversario in piedi, mirando al centro del petto; il disegno è uno sparo di esempio.` }),
     el('div', { class: 'corpo-rosata' },
       el('div', {}, disegno, el('div', { class: 'legenda-grafico' },
         el('span', {}, el('i', { class: 'punto-pieno' }), 'a segno'), el('span', {}, el('i', { class: 'punto-vuoto' }), 'mancato'))),
-      dati));
+      numeri));
+}
+
+// Barra della distanza (e di anca o mirando per i pompa) e le schede: moltiplicatori | TTK, tabella | rosata
+function pannelliArma(a) {
+  const fine = distMax(a);
+  let dist = a.pallini ? Math.min(10, fine) : 0;
+  const schede = [schedaMoltiplicatori(a), graficoTtk(a), schedaTabella(a), a.rosata ? schedaRosata(a) : null];
+  const uscita = el('output');
+  const avvisa = () => {
+    uscita.textContent = `${dist} m`;
+    for (const f of ascoltaDistanza) f(dist);
+  };
+  const cursore = el('input', { type: 'range', min: 0, max: fine, value: dist, step: 1, 'aria-label': 'Distanza in metri',
+    oninput: (e) => { dist = Number(e.target.value); avvisa(); } });
+  const mira = a.rosata ? el('div', { class: 'filtri piccoli', role: 'group', 'aria-label': 'Come si spara' }) : null;
+  const segnaMira = () => { for (const b of mira.children) b.setAttribute('aria-pressed', String((b.dataset.mira === '1') === statoRosata.mirando)); };
+  if (mira) {
+    for (const [v, t] of [['0', 'Anca'], ['1', 'Mirando']]) {
+      mira.append(el('button', { type: 'button', 'data-mira': v, testo: t, onclick: () => { statoRosata.mirando = v === '1'; segnaMira(); avvisa(); } }));
+    }
+    segnaMira();
+  }
+  avvisa();
+  return el('div', {},
+    el('div', { class: 'controlli-arma' }, el('label', { class: 'distanza' }, 'Distanza', cursore, uscita), mira),
+    el('div', { class: `pannelli${a.rosata ? '' : ' senza-rosata'}` }, schede.filter(Boolean)));
 }
 
 function dettaglio(a) {
-  graficoDist = null;
+  ascoltaDistanza = [];
   const stat = [
     ['Danno', a.esplosione ? `${a.danno} al centro, ${a.dannoMin} al bordo` : `${danno(a)}${a.dannoMin !== a.danno ? ` (cala da ${a.cadutaInizio} a ${a.cadutaFine} m)` : ''}`],
     ['Colpi al minuto', cadenza(a)],
@@ -421,8 +436,7 @@ function dettaglio(a) {
     el('div', { class: 'arma-testa' }, el('h3', { testo: a.nome }), el('span', { class: 'classe', testo: `${a.nomeClasse} · ${a.slot === 'primaria' ? 'primaria' : 'secondaria'}` })),
     el('p', { class: 'speciale', testo: a.speciale ?? (a.tipo === 'mischia' ? 'Un colpo, una uccisione.' : a.esplosione ? 'Il razzo vola dritto ed esplode all\'impatto.' : '') }),
     el('dl', { class: 'statistiche' }, stat.map(([k, v]) => el('div', {}, el('dt', { testo: k }), el('dd', { testo: v })))),
-    a.ttk ? el('div', { class: 'pannelli' }, pannelloCorpo(a), graficoTtk(a)) : null,
-    a.rosata ? pannelloRosata(a) : null));
+    a.ttk ? pannelliArma(a) : null));
 }
 
 disegnaArmi();
