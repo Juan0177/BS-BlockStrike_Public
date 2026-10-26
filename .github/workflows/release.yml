@@ -1,0 +1,41 @@
+# Release del launcher: a ogni tag v* compila BlockStrike.exe su Windows (csc.exe di .NET Framework 4),
+# esegue l'autotest e pubblica la release con l'exe. Le note sono il messaggio del tag.
+# Usa solo il token automatico di GitHub Actions: nessun segreto.
+name: Release del launcher
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  launcher:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Compila il launcher
+        shell: pwsh
+        run: |
+          $csc = "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+          & $csc /nologo /codepage:65001 /target:winexe /out:BlockStrike.exe /win32icon:launcher\icona.ico "/resource:launcher\icona.ico,icona.ico" /r:System.Windows.Forms.dll /r:System.Drawing.dll launcher\Config.cs launcher\BlockStrike.cs
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+      - name: Autotest
+        shell: pwsh
+        run: |
+          $p = Start-Process .\BlockStrike.exe -ArgumentList '--autotest' -Wait -PassThru -NoNewWindow
+          if ($p.ExitCode -ne 0) { Write-Error "autotest fallito ($($p.ExitCode))"; exit 1 }
+      - name: Pubblica la release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = '${{ github.ref_name }}'
+          $note = (git tag -l --format='%(contents)' $tag) -join "`n"
+          $sha = (Get-FileHash BlockStrike.exe -Algorithm SHA256).Hash.ToLower()
+          "$note`n`nSHA-256 di BlockStrike.exe: ``$sha``" | Out-File -Encoding utf8 note.md
+          gh release create $tag BlockStrike.exe --title "BS-BlockStrike $($tag.TrimStart('v'))" --notes-file note.md

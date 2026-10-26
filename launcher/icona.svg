@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Icona di BS-BlockStrike: un blocco in isometria (2×2 per faccia) su fondo scuro.
+       Da qui strumenti/crea-icona.js ricava launcher/icona.ico e la favicon del sito. -->
+  <rect width="256" height="256" rx="48" fill="#17191e"/>
+  <g stroke="#17191e" stroke-width="5" stroke-linejoin="round">
+    <!-- faccia sopra -->
+    <polygon points="128,34 210,81 128,128 46,81" fill="#f2a65a"/>
+    <!-- faccia sinistra -->
+    <polygon points="46,81 128,128 128,222 46,175" fill="#e0812b"/>
+    <!-- faccia destra -->
+    <polygon points="128,128 210,81 210,175 128,222" fill="#a85a1c"/>
+    <!-- divisioni dei blocchi -->
+    <path d="M87,57.5 L169,104.5 M169,57.5 L87,104.5 M87,104.5 L87,198.5 M46,128 L128,175 M169,104.5 L169,198.5 M128,175 L210,128" fill="none"/>
+  </g>
+</svg>
