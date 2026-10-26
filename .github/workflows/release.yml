@@ -1,14 +1,19 @@
-# Release del launcher: a ogni tag v* compila BlockStrike.exe su Windows (csc.exe di .NET Framework 4),
-# esegue l'autotest e pubblica la release con l'exe. Le note sono il messaggio del tag.
+# Launcher: a ogni push su main che tocca launcher/ o release/ compila BlockStrike.exe su Windows (csc.exe di
+# .NET Framework 4) ed esegue l'autotest. Se release/versione.txt indica una versione senza release, crea il tag
+# v<versione> e la release con l'exe e le note di release/note.md.
 # Usa solo il token automatico di GitHub Actions: nessun segreto.
 name: Release del launcher
 
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+    paths: ['launcher/**', 'release/**', '.github/workflows/release.yml']
+  workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency: release
 
 jobs:
   launcher:
@@ -16,8 +21,6 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Compila il launcher
         shell: pwsh
         run: |
@@ -29,13 +32,17 @@ jobs:
         run: |
           $p = Start-Process .\BlockStrike.exe -ArgumentList '--autotest' -Wait -PassThru -NoNewWindow
           if ($p.ExitCode -ne 0) { Write-Error "autotest fallito ($($p.ExitCode))"; exit 1 }
-      - name: Pubblica la release
+      - name: Pubblica la release se la versione è nuova
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = '${{ github.ref_name }}'
-          $note = (git tag -l --format='%(contents)' $tag) -join "`n"
+          if (-not (Test-Path release\versione.txt)) { Write-Output 'Nessuna versione da pubblicare'; exit 0 }
+          $versione = (Get-Content release\versione.txt -Raw).Trim()
+          $tag = "v$versione"
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) { Write-Output "La release $tag esiste già"; exit 0 }
           $sha = (Get-FileHash BlockStrike.exe -Algorithm SHA256).Hash.ToLower()
-          "$note`n`nSHA-256 di BlockStrike.exe: ``$sha``" | Out-File -Encoding utf8 note.md
-          gh release create $tag BlockStrike.exe --title "BS-BlockStrike $($tag.TrimStart('v'))" --notes-file note.md
+          $note = Get-Content release\note.md -Raw -Encoding utf8
+          "$note`n`nSHA-256 di BlockStrike.exe: ``$sha``" | Out-File -Encoding utf8 note-release.md
+          gh release create $tag BlockStrike.exe --target $env:GITHUB_SHA --title "BS-BlockStrike $versione" --notes-file note-release.md

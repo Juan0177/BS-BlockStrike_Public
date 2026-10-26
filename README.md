@@ -26,7 +26,8 @@ whitelist del gioco.
 | Cartella | |
 |---|---|
 | `launcher/` | Sorgente del launcher (C# 5, .NET Framework 4 incluso in Windows) e icona |
-| `.github/workflows/release.yml` | A ogni tag `v*` compila l'exe su Windows, esegue l'autotest e pubblica la release |
+| `.github/workflows/release.yml` | Compila l'exe su Windows ed esegue l'autotest; con una versione nuova in `release/versione.txt` pubblica la release |
+| `release/` | Versione e note dell'ultima release, scritte dalla repo del gioco |
 | branch `gh-pages` | Il sito, generato dalla configurazione del gioco a ogni aggiornamento |
 
 Sito e launcher vengono aggiornati in automatico dalla repo del gioco: le modifiche fatte qui a mano vengono
