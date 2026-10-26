@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BS-BlockStrike</title>
+  <meta name="description" content="FPS multiplayer da browser a blocchi, per giocare tra amici: mappe, modalità, armi con TTK, perk e scorestreak.">
+  <link rel="icon" href="icona.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="stile.css">
+  <script>
+    // Tema scelto a mano (pulsante in alto): applicato prima del disegno per non lampeggiare
+    try { const t = localStorage.getItem('bs-tema'); if (t) document.documentElement.dataset.theme = t; } catch { }
+  </script>
+</head>
+<body>
+  <header class="barra">
+    <a class="marchio" href="#inizio"><img src="icona.svg" alt="" width="28" height="28"> BS-BlockStrike</a>
+    <nav aria-label="Sezioni">
+      <a href="#mappe">Mappe</a>
+      <a href="#modalita">Modalità</a>
+      <a href="#armi">Armi</a>
+      <a href="#perk">Perk e scorestreak</a>
+      <a href="#funzionalita">Funzionalità</a>
+    </nav>
+    <button class="tema" id="tema" type="button" aria-label="Tema scuro" title="Cambia tema"></button>
+    <a class="pulsante piccolo" href="https://github.com/Juan0177/BS-BlockStrike_Public/releases/latest/download/BlockStrike.exe">Scarica</a>
+  </header>
+
+  <main>
+    <section id="inizio" class="apertura">
+      <div class="apertura-testo">
+        <h1>BS-BlockStrike</h1>
+        <p class="sottotitolo">FPS multiplayer da browser con grafica a blocchi, per partite fino a 6 contro 6 tra amici. Il server gira sul PC di chi ospita, i posti vuoti li riempiono i bot.</p>
+        <div class="azioni">
+          <a class="pulsante" href="https://github.com/Juan0177/BS-BlockStrike_Public/releases/latest/download/BlockStrike.exe">Scarica il launcher per Windows</a>
+          <a class="pulsante secondario" href="https://github.com/Juan0177/BS-BlockStrike_Public/releases/latest">Note della versione</a>
+        </div>
+        <p class="versione" id="versione"></p>
+      </div>
+      <ol class="passi" aria-label="Come entrare">
+        <li><b>Scarica</b> BlockStrike.exe e aprilo. Al primo avvio Windows può avvisare "Windows ha protetto il PC": scegli <i>Ulteriori informazioni</i> e poi <i>Esegui comunque</i>.</li>
+        <li><b>Incolla il codice invito</b> che ti manda l'host (una volta sola).</li>
+        <li><b>Aspetta</b> che l'host ti approvi: il launcher installa la rete privata ZeroTier e apre il gioco da solo.</li>
+        <li><b>Accedi</b> con nickname e password: l'host ti aggiunge alla whitelist.</li>
+      </ol>
+    </section>
+
+    <section id="mappe">
+      <h2>Mappe</h2>
+      <p class="intro">Mappe a blocchi piccole e verticali. Nella vista dall'alto: punti di partenza delle due squadre e zone dell'Hardpoint.</p>
+      <div class="schede" role="tablist" id="schede-mappe"></div>
+      <div id="mappa"></div>
+    </section>
+
+    <section id="modalita">
+      <h2>Modalità di gioco</h2>
+      <p class="intro" id="intro-modalita"></p>
+      <div class="griglia" id="elenco-modalita"></div>
+    </section>
+
+    <section id="armi">
+      <h2>Armi</h2>
+      <p class="intro">Niente rinculo: ogni arma si distingue per danno, cadenza, portata e un suo gimmick. TTK = tempo dal primo colpo all'uccisione con tutti i colpi a segno, partendo da <span id="salute"></span> di salute.</p>
+      <div class="filtri" id="filtri-armi" role="group" aria-label="Classe"></div>
+      <div class="tabella-scorre">
+        <table class="tabella" id="tabella-armi"></table>
+      </div>
+      <div id="arma"></div>
+      <h3>Granate</h3>
+      <div class="griglia" id="elenco-granate"></div>
+    </section>
+
+    <section id="perk">
+      <h2>Perk e scorestreak</h2>
+      <p class="intro" id="intro-perk"></p>
+      <h3>Perk</h3>
+      <div class="griglia" id="elenco-perk"></div>
+      <h3>Scorestreak</h3>
+      <p class="intro">Si ottengono con uccisioni di fila senza morire; se ne scelgono 2 e si usano con 3 e 4.</p>
+      <ol class="streak" id="elenco-streak"></ol>
+    </section>
+
+    <section id="funzionalita">
+      <h2>Funzionalità e particolarità</h2>
+      <div class="griglia">
+        <article class="voce"><h4>Movimento come in COD</h4><p>Sprint tenuto o a tocco, tac sprint con doppio Shift, scivolata, accovacciarsi, sdraiarsi. Hit flinch: quando ti colpiscono la mira sobbalza davvero.</p></article>
+        <article class="voce"><h4>Senza rinculo</h4><p>Le armi non hanno rinculo: contano dispersione, distanza e gimmick (raffica, cadenza crescente, morso, perforazione, bipiede...).</p></article>
+        <article class="voce"><h4>Armaiolo</h4><p>Ogni arma sale di livello con le uccisioni e sblocca accessori: silenziatore, ottiche, laser, impugnature, caricatori estesi, slug e pallettoni. Fino a 5 per arma.</p></article>
+        <article class="voce"><h4>Progressione</h4><p>Livelli, sblocchi, sfide (il coltello da lancio si guadagna), skin per armi e personaggio, statistiche per modalità e storico delle partite.</p></article>
+        <article class="voce"><h4>Bot che si regolano</h4><p>Facile, Normale, Difficile, Ultra e Auto, che si adatta al K/D degli avversari. Raccolgono armi a terra, escono dal fuoco e saltano le tripwire.</p></article>
+        <article class="voce"><h4>Playlist continua</h4><p>Squadre completate dai bot; a fine partita 10 secondi per votare mappa e modalità della prossima, che parte da sola.</p></article>
+        <article class="voce"><h4>Ping alla squadra</h4><p>Con la rotella o X segnali il nemico nel mirino o un punto. Il ping su un nemico lo segue per qualche secondo e richiama alcuni bot liberi, senza mandarli tutti.</p></article>
+        <article class="voce"><h4>Armi a terra</h4><p>Chi muore lascia l'arma che aveva in mano: la raccogli con E al posto della tua.</p></article>
+        <article class="voce"><h4>Killcam e replay</h4><p>Killcam in terza persona dal punto di vista di chi ti ha ucciso, e a fine partita il replay della giocata migliore.</p></article>
+        <article class="voce"><h4>Editor di mappe</h4><p>Un editor a blocchi nel browser per costruire nuove mappe, con spawn e zone dell'Hardpoint.</p></article>
+        <article class="voce"><h4>Server sul PC dell'host</h4><p>Nessun server a pagamento: l'host avvia il gioco, gli amici entrano con il launcher attraverso una rete privata ZeroTier, senza toccare il router.</p></article>
+        <article class="voce"><h4>Nel browser</h4><p>Gira in Edge o Chrome con Three.js. Quattro livelli di grafica, da Bassa a Ultra con le ombre degli edifici.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="piede">
+    <p id="aggiornato"></p>
+    <p>Sito generato dalla configurazione del gioco a ogni aggiornamento. <a href="https://github.com/Juan0177/BS-BlockStrike_Public">Launcher e sito su GitHub</a></p>
+  </footer>
+
+  <div class="suggerimento" id="suggerimento" role="status" hidden></div>
+  <script type="module" src="sito.js"></script>
+</body>
+</html>
