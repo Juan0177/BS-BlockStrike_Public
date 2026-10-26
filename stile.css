@@ -16,6 +16,7 @@
   --squadra-1: #e8772e;
   /* Moltiplicatori di danno: una sola tinta, dal più basso al più alto */
   --m1: #86b6ef; --m2: #5598e7; --m3: #2a78d6; --m4: #1c5cab; --m5: #104281;
+  --z-testa: #b9b7ae; --z-petto: #cfcdc4; --z-pancia: #c6c4bb; --z-braccia: #dad8d0; --z-gambe: #d4d2c9;
   --raggio: 8px;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -33,6 +34,7 @@
     --accento: #d9772a;
     --su-accento: #111214;
     --m1: #184f95; --m2: #256abf; --m3: #3987e5; --m4: #6da7ec; --m5: #9ec5f4;
+    --z-testa: #4a4d55; --z-petto: #3b3e45; --z-pancia: #363940; --z-braccia: #2f3238; --z-gambe: #2c2f35;
   }
 }
 :root[data-theme="dark"] {
@@ -40,6 +42,7 @@
   --pagina: #111214; --superficie: #1a1b1e; --superficie-2: #232429; --testo: #eeeeec; --secondario: #b9bcc2;
   --tenue: #8a8f98; --linea: #2c2e33; --asse: #3a3c42; --accento: #d9772a; --su-accento: #111214;
   --m1: #184f95; --m2: #256abf; --m3: #3987e5; --m4: #6da7ec; --m5: #9ec5f4;
+  --z-testa: #4a4d55; --z-petto: #3b3e45; --z-pancia: #363940; --z-braccia: #2f3238; --z-gambe: #2c2f35;
 }
 
 * { box-sizing: border-box; }
@@ -197,6 +200,23 @@ section { padding: 56px 0 8px; }
 .legenda-grafico span { display: inline-flex; align-items: center; gap: 6px; }
 .legenda-grafico i { width: 16px; height: 3px; display: inline-block; border-radius: 2px; }
 
+/* Rosata dei pompa */
+.rosata-sito { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--linea); }
+.testa-rosata { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
+.filtri.piccoli { margin: 0; }
+.filtri.piccoli button { padding: 4px 12px; font-size: 0.85rem; }
+.corpo-rosata { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 24px; align-items: center; }
+.disegno-rosata svg { width: 100%; display: block; background: var(--superficie-2); border-radius: 6px; }
+.disegno-rosata .terra { stroke: var(--asse); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+.disegno-rosata .cerchio { fill: none; stroke: var(--tenue); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.disegno-rosata .pallino { fill: var(--superficie); stroke: var(--testo); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+.disegno-rosata .pallino.a-segno { fill: var(--accento); stroke: var(--superficie); }
+.dati-rosata { display: grid; gap: 8px; margin: 0; color: var(--secondario); }
+.dati-rosata b { color: var(--testo); font-variant-numeric: tabular-nums; }
+.legenda-grafico i.punto-pieno, .legenda-grafico i.punto-vuoto { width: 10px; height: 10px; border-radius: 50%; }
+.legenda-grafico i.punto-pieno { background: var(--accento); }
+.legenda-grafico i.punto-vuoto { border: 1.5px solid var(--testo); }
+
 .suggerimento {
   position: fixed; z-index: 20; pointer-events: none; max-width: 260px;
   background: var(--superficie); color: var(--testo); border: 1px solid var(--linea); border-radius: 6px;
@@ -210,7 +230,8 @@ section { padding: 56px 0 8px; }
 .piede p { margin: 4px 0; }
 
 @media (max-width: 860px) {
-  .apertura, .mappa, .pannelli { grid-template-columns: minmax(0, 1fr); }
+  .apertura, .mappa, .pannelli, .corpo-rosata { grid-template-columns: minmax(0, 1fr); }
+  .disegno-rosata { max-width: 260px; }
   .apertura h1 { font-size: 2rem; }
   .barra { gap: 14px; }
   .barra .marchio span { display: none; }

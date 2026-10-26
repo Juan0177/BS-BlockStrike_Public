@@ -358,6 +358,51 @@ function graficoTtk(a) {
       altre.length ? el('span', {}, el('i', { style: 'background:var(--asse)' }), `altre armi: ${d.armi.find((x) => x.classe === a.classe).nomeClasse.toLowerCase()}`) : null));
 }
 
+// Rosata dei pompa: sagoma vista di fronte con i pallini di uno sparo e le medie (calcolate con la logica del gioco)
+const statoRosata = { dist: 10, mirando: true };
+const COLORE_ZONA = { testa: 'var(--z-testa)', bustoAlto: 'var(--z-petto)', bustoBasso: 'var(--z-pancia)', braccia: 'var(--z-braccia)', gambe: 'var(--z-gambe)' };
+
+function pannelloRosata(a) {
+  const R = a.rosata, fine = R.da + R.anca.length - 1;
+  statoRosata.dist = Math.min(Math.max(statoRosata.dist, R.da), fine);
+  const disegno = el('div', { class: 'disegno-rosata' });
+  const dati = el('p', { class: 'dati-rosata' });
+  const uscita = el('output');
+  const mira = el('div', { class: 'filtri piccoli', role: 'group', 'aria-label': 'Come si spara' });
+  const aggiorna = () => {
+    const r = (statoRosata.mirando ? R.mira : R.anca)[statoRosata.dist - R.da];
+    uscita.textContent = `${statoRosata.dist} m`;
+    for (const b of mira.children) b.setAttribute('aria-pressed', String((b.dataset.mira === '1') === statoRosata.mirando));
+    const meta = Math.max(1.05, r.raggio + 0.4), cy = 1.0, punto = Math.max(0.03, meta * 0.022);
+    const s = svg('svg', { viewBox: `${-meta} ${-(cy + meta)} ${2 * meta} ${2 * meta}`, role: 'img', 'aria-label': `Pallini di uno sparo a ${statoRosata.dist} m` });
+    s.append(svg('line', { x1: -meta, x2: meta, y1: 0, y2: 0, class: 'terra' }));
+    for (const z of d.rosata.sagoma) s.append(svg('rect', { x: z.x, y: -(z.y + z.h), width: z.w, height: z.h, fill: COLORE_ZONA[z.zona] }));
+    s.append(svg('circle', { cx: 0, cy: -d.rosata.mira, r: r.raggio, class: 'cerchio' }));
+    for (const [x, y, aSegno] of r.esempio) s.append(svg('circle', { cx: x, cy: -y, r: punto, class: aSegno ? 'pallino a-segno' : 'pallino' }));
+    disegno.replaceChildren(s);
+    const spari = r.spari >= 10 ? 'più di 10 spari' : `${num(r.spari, 1)} spari (${num(r.ttk, 2)} s)`;
+    dati.replaceChildren(
+      el('span', {}, 'Pallini a segno in media: ', el('b', { testo: `${num(r.aSegno, 1)} di ${a.pallini}` })),
+      el('span', {}, 'Danni a sparo: ', el('b', { testo: num(r.danno) })),
+      el('span', {}, 'Uccide con uno sparo: ', el('b', { testo: `${num(r.unoSparo * 100)}%` }), ' dei casi'),
+      el('span', {}, 'Per uccidere in media: ', el('b', { testo: spari })));
+  };
+  for (const [v, t] of [['0', 'Anca'], ['1', 'Mirando']]) {
+    mira.append(el('button', { type: 'button', 'data-mira': v, testo: t, onclick: () => { statoRosata.mirando = v === '1'; aggiorna(); } }));
+  }
+  const cursore = el('input', { type: 'range', min: R.da, max: fine, step: 1, value: statoRosata.dist, 'aria-label': 'Distanza in metri',
+    oninput: (e) => { statoRosata.dist = Number(e.target.value); aggiorna(); } });
+  aggiorna();
+  return el('div', { class: 'rosata-sito' },
+    el('div', { class: 'testa-rosata' }, el('h4', { testo: 'Rosata' }), mira),
+    el('p', { class: 'nota', testo: `Dove finiscono gli ${a.pallini} pallini contro un avversario in piedi, sparando fermi e mirando al centro del petto. Medie su ${d.rosata.spari} spari con la dispersione e le hitbox del gioco; il disegno è uno sparo di esempio. La tabella sopra invece conta tutti i pallini a segno.` }),
+    el('label', { class: 'distanza' }, 'Distanza', cursore, uscita),
+    el('div', { class: 'corpo-rosata' },
+      el('div', {}, disegno, el('div', { class: 'legenda-grafico' },
+        el('span', {}, el('i', { class: 'punto-pieno' }), 'a segno'), el('span', {}, el('i', { class: 'punto-vuoto' }), 'mancato'))),
+      dati));
+}
+
 function dettaglio(a) {
   graficoDist = null;
   const stat = [
@@ -376,7 +421,8 @@ function dettaglio(a) {
     el('div', { class: 'arma-testa' }, el('h3', { testo: a.nome }), el('span', { class: 'classe', testo: `${a.nomeClasse} · ${a.slot === 'primaria' ? 'primaria' : 'secondaria'}` })),
     el('p', { class: 'speciale', testo: a.speciale ?? (a.tipo === 'mischia' ? 'Un colpo, una uccisione.' : a.esplosione ? 'Il razzo vola dritto ed esplode all\'impatto.' : '') }),
     el('dl', { class: 'statistiche' }, stat.map(([k, v]) => el('div', {}, el('dt', { testo: k }), el('dd', { testo: v })))),
-    a.ttk ? el('div', { class: 'pannelli' }, pannelloCorpo(a), graficoTtk(a)) : null));
+    a.ttk ? el('div', { class: 'pannelli' }, pannelloCorpo(a), graficoTtk(a)) : null,
+    a.rosata ? pannelloRosata(a) : null));
 }
 
 disegnaArmi();
