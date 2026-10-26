@@ -67,14 +67,23 @@ const nascondiSugg = () => (sugg.hidden = true);
 // --- Mappe ---
 const COLORI_SQUADRA = ['var(--squadra-0)', 'var(--squadra-1)'];
 
+// Zone Hardpoint una sopra l'altra (es. una galleria sotto una piazza): in pianta si sovrappongono
+const siToccano = (a, b) => a !== b && a.x[0] < b.x[1] && b.x[0] < a.x[1] && a.z[0] < b.z[1] && b.z[0] < a.z[1];
+const zonaSotto = (m, h) => m.hardpoint.some((o) => siToccano(o, h) && o.y > h.y + 1);
+const zonaSopra = (m, h) => m.hardpoint.some((o) => siToccano(o, h) && o.y < h.y - 1);
+
 function pianta(m) {
   const box = el('div', { class: 'pianta' }, el('img', { src: m.alto, alt: `Vista dall'alto di ${m.nome}`, width: m.larghezza, height: m.profondita }));
   const s = svg('svg', { viewBox: `0 0 ${m.larghezza} ${m.profondita}`, 'aria-hidden': 'true' });
   const k = m.larghezza / 60; // dimensioni dei segni in proporzione alla mappa
+  // Zone sovrapposte: quella di sotto col bordo tratteggiato, e le due lettere affiancate (sopra a sinistra)
   for (const h of m.hardpoint) {
-    s.append(svg('rect', { x: h.x[0], y: h.z[0], width: h.x[1] - h.x[0], height: h.z[1] - h.z[0], fill: 'none', stroke: '#ffffff', 'stroke-width': 0.9 * k, rx: 0.6 * k }));
-    const t = svg('text', { x: (h.x[0] + h.x[1]) / 2, y: (h.z[0] + h.z[1]) / 2, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 3.2 * k, 'font-weight': 700, fill: '#ffffff', stroke: '#111214', 'stroke-width': 0.5 * k, 'paint-order': 'stroke' });
-    t.textContent = h.nome;
+    const giu = zonaSotto(m, h), su = zonaSopra(m, h);
+    s.append(svg('rect', { x: h.x[0], y: h.z[0], width: h.x[1] - h.x[0], height: h.z[1] - h.z[0], fill: 'none', stroke: '#ffffff',
+      'stroke-width': 0.9 * k, rx: 0.6 * k, ...(giu ? { 'stroke-dasharray': `${2 * k} ${1.2 * k}` } : {}) }));
+    const sposta = giu ? 2.6 * k : su ? -2.6 * k : 0;
+    const t = svg('text', { x: (h.x[0] + h.x[1]) / 2 + sposta, y: (h.z[0] + h.z[1]) / 2, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 3.2 * k, 'font-weight': 700, fill: '#ffffff', stroke: '#111214', 'stroke-width': 0.5 * k, 'paint-order': 'stroke' });
+    t.textContent = giu ? `${h.nome} ↓` : h.nome;
     s.append(t);
   }
   for (const p of m.spawn) {
@@ -125,7 +134,8 @@ function mostraMappa(m) {
       el('div', { class: 'legenda' },
         squadre ? el('span', {}, el('i', { style: 'background:var(--squadra-0)' }), 'Partenza squadra blu') : null,
         squadre ? el('span', {}, el('i', { style: 'background:var(--squadra-1)' }), 'Partenza squadra arancione') : null,
-        m.hardpoint.length ? el('span', {}, el('i', { class: 'zona' }), 'Zona Hardpoint') : null))));
+        m.hardpoint.length ? el('span', {}, el('i', { class: 'zona' }), 'Zona Hardpoint') : null,
+        m.hardpoint.some((h) => zonaSotto(m, h)) ? el('span', {}, el('i', { class: 'zona sotto' }), 'Zona sotterranea (↓)') : null))));
 }
 
 const schede = $('#schede-mappe');

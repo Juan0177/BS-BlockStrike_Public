@@ -125,6 +125,7 @@ section { padding: 56px 0 8px; }
 .legenda span { display: inline-flex; align-items: center; gap: 6px; }
 .legenda i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 .legenda i.zona { border-radius: 2px; border: 2px solid var(--testo); background: none; }
+.legenda i.zona.sotto { border-style: dashed; }
 .etichette { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; padding: 0; list-style: none; }
 .etichette li { font-size: 0.82rem; padding: 2px 10px; border-radius: 999px; background: var(--superficie-2); color: var(--secondario); }
 
