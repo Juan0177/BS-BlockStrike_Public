@@ -175,6 +175,12 @@ section { padding: 56px 0 8px; }
 .statistiche div { background: var(--superficie-2); border-radius: 6px; padding: 8px 12px; }
 .statistiche dt { font-size: 0.78rem; color: var(--tenue); }
 .statistiche dd { margin: 0; font-weight: 600; }
+/* Foto dell'arma nelle tre configurazioni: fondo chiaro fisso, le armi sono scure in entrambi i temi */
+.aspetto { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 0 0 20px; }
+.aspetto figure { margin: 0; background: #c9ccd1; border-radius: 6px; overflow: hidden; display: grid; }
+.aspetto img { width: 100%; height: auto; display: block; }
+.aspetto figcaption { background: var(--superficie-2); padding: 6px 10px; display: grid; gap: 2px; font-size: 0.85rem; }
+.aspetto figcaption span { color: var(--secondario); }
 .controlli-arma { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 10px 16px; margin-bottom: 16px; background: var(--superficie-2); border-radius: var(--raggio); }
 .controlli-arma .distanza { flex: 1 1 320px; margin: 0; }
 .pannelli { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }

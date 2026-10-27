@@ -498,7 +498,21 @@ function dettaglio(a) {
     el('div', { class: 'arma-testa' }, el('h3', { testo: a.nome }), el('span', { class: 'classe', testo: `${a.nomeClasse} · ${a.slot === 'primaria' ? 'primaria' : 'secondaria'}` })),
     el('p', { class: 'speciale', testo: a.speciale ?? (a.tipo === 'mischia' ? 'Un colpo, una uccisione.' : a.esplosione ? 'Il razzo vola dritto ed esplode all\'impatto.' : '') }),
     el('dl', { class: 'statistiche' }, stat.map(([k, v]) => el('div', {}, el('dt', { testo: k }), el('dd', { testo: v })))),
+    aspetto(a),
     a.ttk ? pannelliArma(a) : null));
+}
+
+// Foto dell'arma: base e, se monta accessori, la configurazione per stabilità e danno e quella per velocità.
+// Una foto che manca (sito costruito senza --foto) non lascia il riquadro vuoto
+function aspetto(a) {
+  if (!a.aspetto?.length) return null;
+  return el('div', { class: 'aspetto' },
+    a.aspetto.map((c) => {
+      const fig = el('figure', {},
+        el('img', { src: c.foto, alt: `${a.nome}: ${c.nome.toLowerCase()}`, loading: 'lazy', width: 720, height: 300, onerror: () => fig.remove() }),
+        el('figcaption', {}, el('b', { testo: c.nome }), el('span', { testo: c.accessori.length ? c.accessori.join(' · ') : 'senza accessori' })));
+      return fig;
+    }));
 }
 
 disegnaArmi();
