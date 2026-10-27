@@ -1,9 +1,11 @@
-- **Icona e namecard**: dal Profilo ognuno carica la sua icona quadrata e una namecard 4:1 (come le calling card
-  di COD), anche GIF animate. Si ritagliano a mano con lo zoom, si vede l'anteprima e vengono compresse prima di
-  salvarle. Si vedono in lobby (clic sull'icona per ingrandirle), nel kill feed, nella killcam e nei risultati.
-  L'host le vede e può toglierle dalla scheda Accessi.
-- **Bot**: ognuno ha la sua icona e tutti la namecard dei quattro maghi.
-- **Killcam**: in basso l'icona e la namecard di chi ti ha ucciso; nel confronto le icone di tutti e due.
-- **Primo accesso**: chi si registra vede un benvenuto con i comandi e le regole; dopo ogni aggiornamento compaiono
-  una volta le novità della versione. Un launcher più vecchio del gioco dell'host mostra un avviso con il link al sito.
-- **Varie**: icona del gioco nella scheda del browser; nella scena dell'ICBJR il terreno non copre più la mappa.
+- **Proiettili con velocità**: i colpi non arrivano più all'istante. Volano a 650 m/s, i cecchini a 550 m/s; con la
+  Canna lunga gli SMG arrivano a 750 m/s, i cecchini a 800 e le altre armi a 720. Da lontano bisogna anticipare chi
+  corre, e lo fanno anche i bot.
+- **Scie**: si vedono viaggiare solo per pompa, cecchini e lanciatori; i fori nei muri compaiono quando il colpo arriva.
+- **Accessori visibili**: canne, bocche, ottiche, impugnature, caricatori e calci cambiano davvero l'aspetto
+  dell'arma, in prima persona, sugli altri giocatori e sulle armi a terra.
+- **Stim** (nuova tattica): la salute riparte subito a rigenerarsi, piena all'istante con il perk Rigenerazione;
+  mentre la usi spari solo dall'anca.
+- **Nuovo tasto Cambia ottica** (B) per le ottiche ibride, configurabile nelle impostazioni.
+- **Azzeramento delle statistiche**: con le uccisioni si perdono anche le skin che si sbloccano con quelle.
+- **Icona e namecard**: le GIF animate vanno al massimo a 30 fotogrammi al secondo.
