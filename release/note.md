@@ -1,11 +1,5 @@
-- **Proiettili con velocità**: i colpi non arrivano più all'istante. Volano a 650 m/s, i cecchini a 550 m/s; con la
-  Canna lunga gli SMG arrivano a 750 m/s, i cecchini a 800 e le altre armi a 720. Da lontano bisogna anticipare chi
-  corre, e lo fanno anche i bot.
-- **Scie**: si vedono viaggiare solo per pompa, cecchini e lanciatori; i fori nei muri compaiono quando il colpo arriva.
-- **Accessori visibili**: canne, bocche, ottiche, impugnature, caricatori e calci cambiano davvero l'aspetto
-  dell'arma, in prima persona, sugli altri giocatori e sulle armi a terra.
-- **Stim** (nuova tattica): la salute riparte subito a rigenerarsi, piena all'istante con il perk Rigenerazione;
-  mentre la usi spari solo dall'anca.
-- **Nuovo tasto Cambia ottica** (B) per le ottiche ibride, configurabile nelle impostazioni.
-- **Azzeramento delle statistiche**: con le uccisioni si perdono anche le skin che si sbloccano con quelle.
-- **Icona e namecard**: le GIF animate vanno al massimo a 30 fotogrammi al secondo.
+- **Ottica ibrida** per tutte le armi con gli accessori: olografico, e con il tasto Cambia ottica (B) un ACOG ×5.
+- **Canna termica** per gli LMG: munizioni infinite, ma se spari troppo a lungo si surriscalda e devi aspettare che
+  si raffreddi. Toglie caricatore e bocca.
+- **Pompa**: il contatore dei pallini a segno ora sta accanto al mirino; il serbatoio non sporge più oltre la canna.
+- **Sito**: per ogni arma tre foto, di base, con gli accessori per stabilità e danno e con quelli per velocità.
