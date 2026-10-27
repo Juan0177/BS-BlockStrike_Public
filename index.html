@@ -6,8 +6,8 @@
   <title>BS-BlockStrike</title>
   <meta name="description" content="FPS multiplayer da browser a blocchi, per giocare tra amici: mappe, modalità, armi con TTK, perk e scorestreak.">
   <link rel="icon" href="icona.svg" type="image/svg+xml">
-  <meta name="versione-dati" content="df4620751a">
-  <link rel="stylesheet" href="stile.css?v=addacefb41">
+  <meta name="versione-dati" content="970e0956db">
+  <link rel="stylesheet" href="stile.css?v=b0ee2bd0ea">
   <script>
     // Tema scelto a mano (pulsante in alto): applicato prima del disegno per non lampeggiare
     try { const t = localStorage.getItem('bs-tema'); if (t) document.documentElement.dataset.theme = t; } catch { }
@@ -20,6 +20,7 @@
       <a href="#mappe">Mappe</a>
       <a href="#modalita">Modalità</a>
       <a href="#armi">Armi</a>
+      <a href="#armi-dev">Armi DEV</a>
       <a href="#perk">Perk e scorestreak</a>
       <a href="#funzionalita">Funzionalità</a>
     </nav>
@@ -71,6 +72,12 @@
       <div class="griglia" id="elenco-granate"></div>
     </section>
 
+    <section id="armi-dev">
+      <h2 class="dev">Armi DEV Edition</h2>
+      <p class="intro">Due armi fuori dal solito loadout: una si conquista sulla mappa, l'altra con una sfida.</p>
+      <div class="armi-dev" id="elenco-armi-dev"></div>
+    </section>
+
     <section id="perk">
       <h2>Perk e scorestreak</h2>
       <p class="intro" id="intro-perk"></p>
@@ -106,6 +113,6 @@
   </footer>
 
   <div class="suggerimento" id="suggerimento" role="status" hidden></div>
-  <script type="module" src="sito.js?v=b3f5a246fb"></script>
+  <script type="module" src="sito.js?v=848242ee61"></script>
 </body>
 </html>

@@ -272,3 +272,20 @@ section { padding: 56px 0 8px; }
 /* Tabella dei TTK: tutte le distanze allineate a destra; niente riga sotto l'ultima zona */
 .tabella.tabella-ttk th:nth-child(2), .tabella.tabella-ttk td:nth-child(2) { text-align: right; }
 .tabella tbody tr:last-child th { border-bottom: 0; }
+
+/* Armi DEV Edition: titolo con il gradiente delle armi dev del gioco */
+.dev { background: linear-gradient(100deg, #ff0000 0%, #ff0000 25%, #ff8c00 40%, #fff 50%, #ff8c00 60%, #ff0000 75%, #ff0000 100%);
+  background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; width: fit-content;
+  animation: dev 1.6s linear infinite; }
+@keyframes dev { from { background-position: 100% 0; } to { background-position: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .dev { animation: none; background-position: 50% 0; } }
+.armi-dev { display: grid; gap: 16px; }
+.arma-dev { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 16px; align-items: start; }
+.arma-dev figure { margin: 0; }
+.arma-dev img { width: 100%; height: auto; border-radius: var(--raggio); display: block; }
+.arma-dev h3 { margin: 0 0 6px; }
+.arma-dev p, .arma-dev li { color: var(--secondario); }
+.accessori-dev { display: grid; gap: 8px; margin: 12px 0 0; }
+.accessori-dev dt { font-weight: 600; }
+.accessori-dev dd { margin: 0; color: var(--secondario); font-size: 0.9rem; }
+@media (max-width: 720px) { .arma-dev { grid-template-columns: 1fr; } }

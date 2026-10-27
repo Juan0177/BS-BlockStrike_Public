@@ -528,6 +528,18 @@ for (const g of [...d.granate].sort((a, b) => (a.tipo === b.tipo ? a.livello - b
     el('ul', { class: 'etichette' }, tag.map((t) => el('li', { testo: t })))));
 }
 
+// --- Armi DEV Edition ---
+for (const a of d.armiDev) {
+  const fig = el('figure', {}, el('img', { src: a.foto, alt: a.nome, loading: 'lazy', onerror: () => fig.remove() }));
+  $('#elenco-armi-dev').append(el('article', { class: 'arma-dev voce' },
+    fig,
+    el('div', {},
+      el('h3', { class: 'dev', testo: a.nome }),
+      el('p', { testo: a.come }),
+      el('ul', {}, a.punti.map((p) => el('li', { testo: p }))),
+      a.accessori.length ? el('dl', { class: 'accessori-dev' }, a.accessori.map((x) => el('div', {}, el('dt', { testo: x.nome }), el('dd', { testo: x.descrizione })))) : null)));
+}
+
 // --- Perk e scorestreak ---
 $('#intro-perk').textContent = `Nel loadout si scelgono ${d.slotPerk} perk; si sbloccano salendo di livello.`;
 for (const p of [...d.perk].sort((a, b) => a.livello - b.livello)) {
