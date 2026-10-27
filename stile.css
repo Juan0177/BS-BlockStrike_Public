@@ -278,7 +278,7 @@ section { padding: 56px 0 8px; }
   background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; width: fit-content;
   animation: dev 1.6s linear infinite; }
 @keyframes dev { from { background-position: 100% 0; } to { background-position: 0 0; } }
-@media (prefers-reduced-motion: reduce) { .dev { animation: none; background-position: 50% 0; } }
+@media (prefers-reduced-motion: reduce) { .dev { animation-duration: 4s; } }
 .armi-dev { display: grid; gap: 16px; }
 .arma-dev { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 16px; align-items: start; }
 .arma-dev figure { margin: 0; }
