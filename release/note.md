@@ -1,18 +1,19 @@
-- **Armi nuove**: Martello BR (fucile da battaglia semiautomatico, 2 colpi al busto), Falce SMG (raffica da 4, alla
-  testa una raffica uccide), Grandine (pompa automatico), Balestra (dardo silenzioso con caduta, alla testa uccide
-  sempre), Calabrone (pistola automatica) e Mazza (al posto del coltello, arriva più lontano).
-- **Armi DEV**: a ogni partita sulla mappa compare un'arma DEV diversa, a rotazione: XRT Viper, Martello BR con i
-  colpi esplosivi, Grandine incendiario, Calabrone con i colpi che rimbalzano sui muri, Balestra con i dardi che
-  esplodono. Con le sfide si sbloccano il **Fulmine X1** (cecchino a carica che attraversa i giocatori) e la
-  **Balestra - DEV**.
-- **Poligono di tiro**: dal pulsante Poligono della lobby, quando vuoi e con gli amici che inviti. Area di tiro con la
-  console delle modalità (sagome fisse da 10 a 100 m, in movimento, bersagli a tempo, sfide di tracking che danno XP),
-  **Duello** 1v1 su corsie a specchio (Riflessi, Contesa, Tracking a specchio) dal menu di pausa, PvP tutti contro
-  tutti, tutto sbloccato e un riquadro con colpi, precisione, danno e TTK.
-- **Più XP**: punti ×3, le uccisioni valgono di più contro i bot più forti e con la serie di uccisioni.
-- **Ping pareggiato**: chi ha un ping molto più basso degli altri (l'host) riceve un piccolo ritardo, così nessuno
-  parte avvantaggiato.
-- **Nickname modificabili** dal Profilo quando vuoi; l'host gestisce la whitelist come inviti legati all'account.
-- **Playlist**: l'host sceglie le modalità tra cui si pesca e se mettere i bot o giocare solo tra umani.
-- **Meno scatti**: grafica preparata durante il caricamento della partita, server senza picchi sulle mappe grandi
-  con tanti bot, e nell'HUD accanto agli FPS il frame più lento degli ultimi secondi.
+- **Abilità**: nel loadout si sceglie un'abilità e si usa con **H**; poi si ricarica nel tempo, più in fretta se uccidi.
+  Invisibilità (6 secondi, più veloce, finisce se spari o ti colpiscono), Cassa armi per rifornire la squadra, Sensore
+  di movimento, Torretta SAM che abbatte gli UAV nemici e Scudo dispiegabile dietro cui ripararsi.
+- **3 perk**, uno per categoria (Arsenale, Corpo, Tattica). I loadout salvati si sistemano da soli.
+- **Scorestreak a punti**: se ne scelgono 3 (tasti 3, 4 e **5**) e arrivano con i punti di uccisioni, assist, zone
+  conquistate e velivoli abbattuti; morendo i punti ripartono da zero. Linea dura le fa costare il 15% in meno.
+- **UAV e Contro-UAV in volo**: si vedono girare sopra la mappa e si abbattono con i lanciatori: tieni il mirino sul
+  velivolo per un secondo, aggancia e il missile lo insegue.
+- **Modalità nuove**, a squadre o tutti contro tutti: **Solo cecchini** (gravità dimezzata, niente controllo in aria),
+  **Solo lanciatori** (scivolata doppia) e **Spec Battle** (un loadout a caso uguale per tutti, che cambia a ogni
+  uccisione di chi è in testa).
+- **Armi DEV**: le armi della mappa (XRT Viper, Martello BR, Grandine, Calabrone) hanno il loro accessorio esclusivo.
+  Vulkan N8, Fulmine X1 e Balestra - DEV si sbloccano con la sfida e hanno una skin animata tutta loro (Eruzione,
+  Tempesta, Predatore) e accessori esclusivi. Il **Fulmine X1** ha il colpo caricato: tieni premuto 3 secondi e passa un
+  muro e tutti i giocatori in fila; con il Visore termico vedi i nemici nel fumo e da invisibili. La **Balestra - DEV**
+  uccide sempre chi è entro 3 m dal dardo.
+- **GET DELETED**: chi muore per un colpo caricato attraverso un muro lo scopre subito. La killcam parte dopo 3 secondi.
+- **Poligono** senza scorestreak né ICBJR; le abilità si provano lì.
+- Bot più svegli sulle scale e con i lanciatori; pagina riservata del sito con tutte le armi DEV.
