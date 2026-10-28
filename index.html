@@ -6,8 +6,8 @@
   <title>BS-BlockStrike</title>
   <meta name="description" content="FPS multiplayer da browser a blocchi, per giocare tra amici: mappe, modalità, armi con TTK, perk e scorestreak.">
   <link rel="icon" href="icona.svg" type="image/svg+xml">
-  <meta name="versione-dati" content="d262874447">
-  <link rel="stylesheet" href="stile.css?v=f2ed6fedab">
+  <meta name="versione-dati" content="0a48b63860">
+  <link rel="stylesheet" href="stile.css?v=c50db4925d">
   <script>
     // Tema scelto a mano (pulsante in alto): applicato prima del disegno per non lampeggiare
     try { const t = localStorage.getItem('bs-tema'); if (t) document.documentElement.dataset.theme = t; } catch { }
@@ -73,8 +73,9 @@
     </section>
 
     <section id="armi-dev">
-      <h2 class="dev">Armi DEV Edition</h2>
-      <p class="intro">Due armi fuori dal solito loadout: una si conquista sulla mappa, l'altra con una sfida.</p>
+      <h2 class="nome-gradiente">Armi DEV Edition</h2>
+      <p class="intro">Armi fuori dal solito: quelle della mappa si conquistano in partita e hanno sempre tutti gli accessori; le farmabili si sbloccano con una sfida e poi si scelgono nel loadout, con una skin propria e accessori esclusivi.</p>
+      <p class="intro" id="come-armi-dev"></p>
       <div class="armi-dev" id="elenco-armi-dev"></div>
     </section>
 
@@ -82,10 +83,13 @@
       <h2>Perk e scorestreak</h2>
       <p class="intro" id="intro-perk"></p>
       <h3>Perk</h3>
-      <div class="griglia" id="elenco-perk"></div>
+      <div id="elenco-perk"></div>
       <h3>Scorestreak</h3>
-      <p class="intro">Si ottengono con uccisioni di fila senza morire; se ne scelgono 2 e si usano con 3 e 4.</p>
+      <p class="intro" id="intro-streak"></p>
       <ol class="streak" id="elenco-streak"></ol>
+      <h3>Abilità</h3>
+      <p class="intro" id="intro-abilita"></p>
+      <div class="griglia" id="elenco-abilita"></div>
     </section>
 
     <section id="funzionalita">
@@ -99,7 +103,7 @@
         <article class="voce"><h4>Playlist continua</h4><p>Squadre pari completate dai bot; la prima partita è a sorpresa, poi si vota la prossima sotto i risultati e parte da sola.</p></article>
         <article class="voce"><h4>Ping alla squadra</h4><p>Con la rotella o X segnali il nemico nel mirino o un punto. Il ping su un nemico lo segue per qualche secondo e richiama alcuni bot liberi, senza mandarli tutti.</p></article>
         <article class="voce"><h4>Armi a terra</h4><p>Chi muore lascia l'arma che aveva in mano: la raccogli con E al posto della tua.</p></article>
-        <article class="voce"><h4>Killcam e replay</h4><p>Killcam in terza persona dal punto di vista di chi ti ha ucciso, e a fine partita il replay della giocata migliore.</p></article>
+        <article class="voce"><h4>Killcam e replay</h4><p>Killcam in prima persona, negli occhi di chi ti ha ucciso, e a fine partita il replay della giocata migliore.</p></article>
         <article class="voce"><h4>Editor di mappe</h4><p>Un editor a blocchi nel browser per costruire nuove mappe, con spawn e zone dell'Hardpoint.</p></article>
         <article class="voce"><h4>Server sul PC dell'host</h4><p>Nessun server a pagamento: l'host avvia il gioco, gli amici entrano con il launcher attraverso una rete privata ZeroTier, senza toccare il router.</p></article>
         <article class="voce"><h4>Nel browser</h4><p>Gira in Edge o Chrome con Three.js. Quattro livelli di grafica, da Bassa a Ultra con le ombre degli edifici.</p></article>
@@ -113,6 +117,6 @@
   </footer>
 
   <div class="suggerimento" id="suggerimento" role="status" hidden></div>
-  <script type="module" src="sito.js?v=848242ee61"></script>
+  <script type="module" src="sito.js?v=e96e09777f"></script>
 </body>
 </html>

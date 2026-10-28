@@ -139,6 +139,7 @@ section { padding: 56px 0 8px; }
 
 /* --- Griglie di schede --- */
 .griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.categoria-perk { margin: 18px 0 8px; color: var(--secondario); text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.85rem; }
 .voce { background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--raggio); padding: 16px; }
 .voce p { color: var(--secondario); margin: 6px 0 0; font-size: 0.95rem; }
 .voce .testa { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
@@ -212,7 +213,7 @@ section { padding: 56px 0 8px; }
 .grafico .griglia-asse line { stroke: var(--linea); stroke-width: 1; }
 .grafico .asse line { stroke: var(--asse); }
 .grafico text { fill: var(--tenue); font-size: 11px; font-variant-numeric: tabular-nums; }
-.grafico .altra { stroke: var(--asse); stroke-width: 1.5; fill: none; }
+.grafico .altra { stroke: var(--tenue); stroke-width: 1.5; stroke-opacity: 0.6; fill: none; }
 .grafico .scelta { stroke: var(--accento); stroke-width: 2.5; fill: none; }
 .grafico .croce { stroke: var(--tenue); stroke-width: 1; }
 .grafico .punto { fill: var(--accento); stroke: var(--superficie); stroke-width: 2; }
@@ -273,12 +274,12 @@ section { padding: 56px 0 8px; }
 .tabella.tabella-ttk th:nth-child(2), .tabella.tabella-ttk td:nth-child(2) { text-align: right; }
 .tabella tbody tr:last-child th { border-bottom: 0; }
 
-/* Armi DEV Edition: titolo con il gradiente delle armi dev del gioco */
-.dev { background: linear-gradient(100deg, #ff0000 0%, #ff0000 25%, #ff8c00 40%, #fff 50%, #ff8c00 60%, #ff0000 75%, #ff0000 100%);
+/* Armi DEV Edition: titolo con il gradiente delle armi dev del gioco (non si chiama dev: la pagina DEV ha un contenitore con quel nome) */
+.nome-gradiente { background: linear-gradient(100deg, #ff0000 0%, #ff0000 25%, #ff8c00 40%, #fff 50%, #ff8c00 60%, #ff0000 75%, #ff0000 100%);
   background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; width: fit-content;
-  animation: dev 1.6s linear infinite; }
-@keyframes dev { from { background-position: 100% 0; } to { background-position: 0 0; } }
-@media (prefers-reduced-motion: reduce) { .dev { animation-duration: 4s; } }
+  animation: nome-gradiente 1.6s linear infinite; }
+@keyframes nome-gradiente { from { background-position: 100% 0; } to { background-position: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .nome-gradiente { animation-duration: 4s; } }
 .armi-dev { display: grid; gap: 16px; }
 .arma-dev { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 16px; align-items: start; }
 .arma-dev figure { margin: 0; }

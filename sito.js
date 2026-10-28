@@ -198,7 +198,7 @@ mostraMappa(d.mappe[0]);
 // --- Modalità ---
 $('#intro-modalita').textContent = `Partite fino a ${d.perSquadra} contro ${d.perSquadra}: i posti vuoti li prendono i bot. A fine partita si vota la prossima combinazione di mappa e modalità.`;
 for (const m of d.modalita) {
-  const tag = [m.squadre ? 'A squadre' : 'Tutti contro tutti'];
+  const tag = [m.varianti ? 'A squadre o tutti contro tutti' : m.squadre ? 'A squadre' : 'Tutti contro tutti'];
   if (m.limitePunteggio) tag.push(m.id === 'hardpoint' ? `${m.limitePunteggio} punti` : `${m.limitePunteggio} uccisioni`);
   if (m.limiteTempo) tag.push(`${m.limiteTempo} minuti`);
   if (m.durataZona) tag.push(`zona nuova ogni ${m.durataZona} s`);
@@ -338,7 +338,8 @@ function graficoTtk(a) {
   const maxD = Math.max(...serie.map(distMax));
   const maxT = Math.min(a.pallini ? LIMITI_POMPA.tempo : Infinity, Math.max(200, ...serie.flatMap((x) => x.ttk.bustoBasso.tempo.slice(0, maxD + 1))));
   const passoT = maxT > 1500 ? 500 : maxT > 600 ? 200 : 100;
-  const topT = Math.ceil(maxT / passoT) * passoT;
+  // Un passo di margine in cima: una curva al massimo non finisce sulla riga più alta della griglia
+  const topT = (Math.floor(maxT / passoT) + 1) * passoT;
   const X = (dist) => M.s + (dist / maxD) * (W - M.s - M.d);
   const Y = (t) => H - M.b - (Math.min(t, topT) / topT) * (H - M.a - M.b);
   const s = svg('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': `TTK alla pancia di ${a.nome} per distanza` });
@@ -355,9 +356,6 @@ function graficoTtk(a) {
     tx.textContent = `${x} m`;
     griglia.append(tx);
   }
-  const ts = svg('text', { x: W - M.d + 6, y: Y(0), 'dominant-baseline': 'central' });
-  ts.textContent = 'distanza';
-  griglia.append(ts);
   s.append(griglia, svg('g', { class: 'asse' }), svg('line', { x1: M.s, x2: W - M.d, y1: Y(0), y2: Y(0), stroke: 'var(--asse)' }));
   // Gradini: il TTK cambia a salti quando serve un colpo in più
   const percorso = (x) => {
@@ -397,7 +395,7 @@ function graficoTtk(a) {
     segna(dist);
     const righe = serie.map((x) => ({ x, t: ttkA(x, 'bustoBasso', dist) })).filter((r) => r.t).sort((p, q) => p.t.tempo - q.t.tempo);
     mostraSugg(e.clientX, e.clientY, [el('b', { testo: `${dist} m` }),
-      ...righe.map(({ x, t }) => el('div', { class: x === a ? 'scelta' : null }, el('span', { testo: x.nome }), el('span', { testo: `${secondi(t.tempo)} · ${t.colpi}` })))]);
+      ...righe.map(({ x, t }) => el('div', { class: x === a ? 'scelta' : null }, el('span', { testo: x.nome }), el('span', { testo: esito(t) })))]);
   });
   zonaMouse.addEventListener('pointerleave', () => {
     nascondiSugg();
@@ -412,7 +410,7 @@ function graficoTtk(a) {
     s,
     el('div', { class: 'legenda-grafico' },
       el('span', {}, el('i', { style: 'background:var(--accento)' }), a.nome),
-      altre.length ? el('span', {}, el('i', { style: 'background:var(--asse)' }), `altre armi: ${d.armi.find((x) => x.classe === a.classe).nomeClasse.toLowerCase()}`) : null));
+      altre.length ? el('span', {}, el('i', { style: 'background:var(--tenue);opacity:0.6' }), `altre armi: ${d.armi.find((x) => x.classe === a.classe).nomeClasse.toLowerCase()}`) : null));
 }
 
 // Rosata dei pompa: sagoma vista di fronte con i pallini di uno sparo e le medie (calcolate con la logica del gioco)
@@ -529,27 +527,39 @@ for (const g of [...d.granate].sort((a, b) => (a.tipo === b.tipo ? a.livello - b
 }
 
 // --- Armi DEV Edition ---
-for (const a of d.armiDev) {
+$('#come-armi-dev').textContent = d.armiDev.comeMappa;
+for (const a of d.armiDev.armi) {
   const fig = el('figure', {}, el('img', { src: a.foto, alt: a.nome, loading: 'lazy', onerror: () => fig.remove() }));
   $('#elenco-armi-dev').append(el('article', { class: 'arma-dev voce' },
     fig,
     el('div', {},
-      el('h3', { class: 'dev', testo: a.nome }),
-      el('p', { testo: a.come }),
+      el('h3', { class: 'nome-gradiente', testo: a.nome }),
+      a.come ? el('p', { testo: a.come }) : null,
       el('ul', {}, a.punti.map((p) => el('li', { testo: p }))),
       a.accessori.length ? el('dl', { class: 'accessori-dev' }, a.accessori.map((x) => el('div', {}, el('dt', { testo: x.nome }), el('dd', { testo: x.descrizione })))) : null)));
 }
 
 // --- Perk e scorestreak ---
-$('#intro-perk').textContent = `Nel loadout si scelgono ${d.slotPerk} perk; si sbloccano salendo di livello.`;
-for (const p of [...d.perk].sort((a, b) => a.livello - b.livello)) {
-  $('#elenco-perk').append(el('article', { class: 'voce' },
+const categoriePerk = Object.values(d.categoriePerk);
+$('#intro-perk').textContent = `Nel loadout si scelgono ${d.slotPerk} perk, uno per categoria (${categoriePerk.join(', ')}); si sbloccano salendo di livello.`;
+for (const [cat, nome] of Object.entries(d.categoriePerk)) {
+  const perk = d.perk.filter((p) => p.categoria === cat).sort((a, b) => a.livello - b.livello);
+  $('#elenco-perk').append(el('h4', { class: 'categoria-perk', testo: nome }), el('div', { class: 'griglia' }, perk.map((p) => el('article', { class: 'voce' },
     el('div', { class: 'testa' }, el('h4', { testo: p.nome }), el('span', { class: 'livello', testo: `livello ${p.livello}` })),
-    el('p', { testo: p.descrizione })));
+    el('p', { testo: p.descrizione })))));
 }
+const ps = d.puntiSerie;
+$('#intro-streak').textContent = `Si ottengono con i punti di serie, che si azzerano morendo: ${ps.uccisione} a uccisione, ${ps.assist} per un assist, `
+  + `${ps.obiettivo} per un obiettivo e ${ps.velivolo} per un UAV abbattuto. Se ne scelgono ${d.slotKillstreak} e si usano con 3, 4 e 5; `
+  + 'una volta pronte restano finché non le usi.';
+// Abilità: una nel loadout, si usa con H e si ricarica nel tempo
+$('#intro-abilita').textContent = `Se ne sceglie una nel loadout e si usa con H; poi si ricarica nel tempo, e ogni uccisione toglie il ${Math.round(d.scontoAbilita * 100)}% della ricarica che resta.`;
+$('#elenco-abilita').append(...d.abilita.map((a) => el('article', { class: 'voce' },
+  el('div', { class: 'testa' }, el('h4', { testo: a.nome }), el('span', { class: 'livello', testo: `livello ${a.livello}` })),
+  el('p', { testo: `${a.descrizione}. Ricarica ${a.ricarica} s.` }))));
 for (const k of d.killstreak) {
   $('#elenco-streak').append(el('li', {},
-    el('div', { class: 'uccisioni' }, `${k.uccisioni}`, el('small', { testo: 'uccisioni' })),
+    el('div', { class: 'uccisioni' }, `${k.punti}`, el('small', { testo: 'punti' })),
     el('div', {}, el('h4', { testo: k.nome }), el('p', { testo: k.descrizione + (k.durata ? ` (${k.durata} s)` : '') })),
     el('span', { class: 'livello', testo: `livello ${k.livello}` })));
 }
