@@ -20,6 +20,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.ServiceProcess;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
@@ -33,6 +34,7 @@ static class Launcher {
     string modo = args.Length > 0 ? args[0] : "";
     if (modo == "--autotest") return Autotest();
     if (modo == "--entra") return Entra(args.Length > 1 ? args[1] : "");
+    if (modo == "--avvia-zerotier") return AvviaZeroTier();
     Application.EnableVisualStyles();
     Application.SetCompatibleTextRenderingDefault(false);
     var finestra = new Finestra(Array.IndexOf(args, "--locale") >= 0, modo == "--anteprima" && args.Length > 1 ? args[1] : null);
@@ -50,6 +52,17 @@ static class Launcher {
       Thread.Sleep(1000);
     }
     return codice;
+  }
+
+  // Con i permessi di amministratore: avvia il servizio di ZeroTier (spento dopo un'installazione a metà o fermato
+  // dall'antivirus) e aspetta che giri
+  static int AvviaZeroTier() {
+    Esegui("sc.exe", "start " + SERVIZIO_ZEROTIER, true);
+    for (int i = 0; i < 10; i++) {
+      if (ZeroTierAcceso()) return 0;
+      Thread.Sleep(1000);
+    }
+    return 1;
   }
 
   // --- Funzioni pure ---
@@ -115,6 +128,25 @@ static class Launcher {
   }
 
   // --- Sistema ---
+
+  public const string SERVIZIO_ZEROTIER = "ZeroTierOneService";
+
+  public static bool ZeroTierAcceso() {
+    try {
+      using (var s = new ServiceController(SERVIZIO_ZEROTIER)) return s.Status == ServiceControllerStatus.Running;
+    } catch (InvalidOperationException) {
+      return false; // servizio non installato
+    }
+  }
+
+  // Il PC dell'host risponde al ping? Windows può bloccare il ping: un no non è sicuro, un sì sì
+  public static bool HostRisponde(string ip) {
+    try {
+      using (var p = new Ping()) return p.Send(ip, 1000).Status == IPStatus.Success;
+    } catch (PingException) {
+      return false;
+    }
+  }
 
   public static string ZeroTierCli() {
     return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"ZeroTier\One\zerotier-cli.bat");
@@ -516,16 +548,39 @@ class Finestra : Form {
       }
     }
     string url = Indirizzo(ip);
+    var nellaRete = new Stopwatch();
     while (Attivo(questo)) {
       if (Launcher.ServerRisponde(url)) {
         Gioca(questo, url);
         return;
       }
-      Stato(questo, NellaRete()
-        ? "Host raggiungibile, ma il server è spento o la porta " + porta + " è bloccata dal firewall. Riprovo..."
-        : "In attesa che l'host ti approvi nella rete ZeroTier...");
+      if (!Launcher.ZeroTierAcceso() && !AvviaZeroTier(questo)) return;
+      if (!NellaRete()) {
+        nellaRete.Reset();
+        Stato(questo, "In attesa che l'host ti approvi nella rete ZeroTier...");
+      } else {
+        nellaRete.Start();
+        Stato(questo, Launcher.HostRisponde(ip)
+          ? "Il PC dell'host risponde, ma il gioco no: il server è spento o la porta " + porta + " è bloccata. Avvisa l'host. Riprovo..."
+          : nellaRete.Elapsed.TotalSeconds < 30
+          ? "Sei nella rete, cerco il PC dell'host..."
+          : "Il PC dell'host non risponde. Controlla che l'host abbia acceso il server; se è acceso, riavvia il PC, spegni le VPN e il firewall dell'antivirus (McAfee, Norton...) o prova un'altra connessione. Riprovo...");
+      }
       Thread.Sleep(2000);
     }
+  }
+
+  // Servizio di ZeroTier spento: lo avvia con i permessi di amministratore (Windows chiede il permesso)
+  bool AvviaZeroTier(int questo) {
+    Stato(questo, "ZeroTier è spento: lo avvio (Windows potrebbe chiedere il permesso)...");
+    try {
+      Process.Start(new ProcessStartInfo(Application.ExecutablePath, "--avvia-zerotier") { Verb = "runas", UseShellExecute = true }).WaitForExit();
+    } catch (Win32Exception e) {
+      if (e.NativeErrorCode != Launcher.ANNULLATO_DA_UTENTE) throw;
+    }
+    if (Launcher.ZeroTierAcceso()) return true;
+    Errore(questo, "ZeroTier non parte. Spesso è l'antivirus (McAfee, Norton...) che lo blocca: ripristinalo dalla quarantena o aggiungi un'eccezione, poi riavvia il PC e premi Riprova.");
+    return false;
   }
 
   bool NellaRete() {
