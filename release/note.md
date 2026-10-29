@@ -1,3 +1,4 @@
-- **Perk Risposta eccessiva** (Arsenale, livello 13): porti due armi primarie, la seconda al posto della secondaria.
-  Nell'armaiolo scegli se equipaggiare una primaria come 1ª o 2ª arma.
-- Tolta la mimetica **Oro** a tinta unita: l'oro ora è solo quello della maestria. Chi l'aveva torna alla Standard.
+- **Solo lanciatori**: la Balestra - DEV arriva già montata al meglio, con i Flettenti in carbonio (dardo dritto),
+  caricatore rapido, ottica ibrida e calcio leggero.
+- **Playlist**: per Solo cecchini, Solo lanciatori e Spec Battle l'host sceglie se giocarle a squadre, tutti contro tutti
+  o in tutte e due le varianti.
