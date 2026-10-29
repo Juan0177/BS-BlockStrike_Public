@@ -86,6 +86,21 @@ function pianta(m) {
     t.textContent = giu ? `${h.nome} ↓` : h.nome;
     s.append(t);
   }
+  // Siti bomba (Cerca e distruggi): riquadri rossi tratteggiati con la lettera
+  for (const t of m.siti ?? []) {
+    s.append(svg('rect', { x: t.x[0], y: t.z[0], width: t.x[1] - t.x[0], height: t.z[1] - t.z[0], fill: 'rgba(255,77,77,0.18)', stroke: '#ff4d4d',
+      'stroke-width': 0.7 * k, 'stroke-dasharray': `${1.4 * k} ${0.9 * k}` }));
+    const t2 = svg('text', { x: (t.x[0] + t.x[1]) / 2, y: (t.z[0] + t.z[1]) / 2, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 2.6 * k, 'font-weight': 700, fill: '#ff4d4d', stroke: '#111214', 'stroke-width': 0.45 * k, 'paint-order': 'stroke' });
+    t2.textContent = t.nome;
+    s.append(t2);
+  }
+  // Bandiere del Dominio: cerchio di cattura (3 m) con la lettera
+  for (const f of m.bandiere ?? []) {
+    s.append(svg('circle', { cx: f.x, cy: f.z, r: 3, fill: 'rgba(255,210,58,0.2)', stroke: '#ffd23a', 'stroke-width': 0.6 * k }));
+    const t2 = svg('text', { x: f.x, y: f.z, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 2.6 * k, 'font-weight': 700, fill: '#ffd23a', stroke: '#111214', 'stroke-width': 0.45 * k, 'paint-order': 'stroke' });
+    t2.textContent = f.nome;
+    s.append(t2);
+  }
   for (const p of m.spawn) {
     if (p.squadra == null) continue;
     s.append(svg('circle', { cx: p.x, cy: p.z, r: 0.9 * k, fill: COLORI_SQUADRA[p.squadra], stroke: '#ffffff', 'stroke-width': 0.35 * k }));
@@ -185,7 +200,9 @@ function mostraMappa(m) {
         squadre ? el('span', {}, el('i', { style: 'background:var(--squadra-0)' }), 'Partenza squadra blu') : null,
         squadre ? el('span', {}, el('i', { style: 'background:var(--squadra-1)' }), 'Partenza squadra arancione') : null,
         m.hardpoint.length ? el('span', {}, el('i', { class: 'zona' }), 'Zona Hardpoint') : null,
-        m.hardpoint.some((h) => zonaSotto(m, h)) ? el('span', {}, el('i', { class: 'zona sotto' }), 'Zona sotterranea (↓)') : null))));
+        m.hardpoint.some((h) => zonaSotto(m, h)) ? el('span', {}, el('i', { class: 'zona sotto' }), 'Zona sotterranea (↓)') : null,
+        m.bandiere?.length ? el('span', {}, el('i', { style: 'background:transparent;border:2px solid #ffd23a;border-radius:50%' }), 'Bandiera del Dominio') : null,
+        m.siti?.length ? el('span', {}, el('i', { style: 'background:rgba(255,77,77,0.25);border:2px dashed #ff4d4d' }), 'Sito bomba (Cerca e distruggi)') : null))));
 }
 
 const schede = $('#schede-mappe');
@@ -199,8 +216,10 @@ mostraMappa(d.mappe[0]);
 $('#intro-modalita').textContent = `Partite fino a ${d.perSquadra} contro ${d.perSquadra}: i posti vuoti li prendono i bot. A fine partita si vota la prossima combinazione di mappa e modalità.`;
 for (const m of d.modalita) {
   const tag = [m.varianti ? 'A squadre o tutti contro tutti' : m.squadre ? 'A squadre' : 'Tutti contro tutti'];
-  if (m.limitePunteggio) tag.push(m.id === 'hardpoint' ? `${m.limitePunteggio} punti` : `${m.limitePunteggio} uccisioni`);
-  if (m.limiteTempo) tag.push(`${m.limiteTempo} minuti`);
+  if (m.limitePunteggio) tag.push(`${m.limitePunteggio} ${m.unita ?? 'uccisioni'}`);
+  // A round (Prima linea, Cerca e distruggi): il tempo è di ogni round
+  if (m.roundPerVincere) tag.push(`${m.roundPerVincere} round vinti`);
+  if (m.limiteTempo) tag.push(m.roundPerVincere ? `${m.limiteTempo} minuti a round` : `${m.limiteTempo} minuti`);
   if (m.durataZona) tag.push(`zona nuova ogni ${m.durataZona} s`);
   $('#elenco-modalita').append(el('article', { class: 'voce' },
     el('h4', { testo: m.nome }),
