@@ -92,9 +92,18 @@ section { padding: 56px 0 8px; }
 .sottotitolo { font-size: 1.15rem; color: var(--secondario); margin: 12px 0 24px; }
 .azioni { display: flex; flex-wrap: wrap; gap: 12px; }
 .versione { color: var(--tenue); font-size: 0.9rem; margin-top: 16px; }
+.avviso { margin: 20px 0 0; padding: 12px 16px; border-left: 4px solid var(--accento); background: var(--superficie); border-radius: 0 var(--raggio) var(--raggio) 0; color: var(--secondario); max-width: 60ch; }
+.avviso b { color: var(--testo); }
+.come-entrare h2 { font-size: 1.15rem; margin-bottom: 10px; }
 .passi { margin: 0; padding: 20px 20px 20px 44px; background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--raggio); }
 .passi li { margin: 6px 0; color: var(--secondario); }
 .passi b { color: var(--testo); }
+.nota-passi { font-size: 0.88rem; color: var(--tenue); margin: 10px 0 0; }
+
+/* --- Novità --- */
+.novita { margin: 12px 0; padding: 0 0 0 20px; display: grid; gap: 8px; max-width: 86ch; }
+.novita li { color: var(--secondario); }
+.novita b { color: var(--testo); }
 
 /* --- Schede e filtri --- */
 .schede, .filtri { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
@@ -103,6 +112,7 @@ section { padding: 56px 0 8px; }
   background: var(--superficie); color: var(--secondario); border: 1px solid var(--linea);
 }
 .schede button[aria-selected="true"], .filtri button[aria-pressed="true"] { background: var(--testo); color: var(--pagina); border-color: var(--testo); }
+.schede button small { margin-left: 6px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; }
 
 .riquadro { background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--raggio); padding: 20px; }
 
@@ -134,6 +144,9 @@ section { padding: 56px 0 8px; }
 .legenda i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 .legenda i.zona { border-radius: 2px; border: 2px solid var(--testo); background: none; }
 .legenda i.zona.sotto { border-style: dashed; }
+.legenda i.rombo { border-radius: 1px; transform: rotate(45deg); width: 9px; height: 9px; }
+.modalita-mappa { font-size: 0.9rem; }
+.modalita-mappa b { color: var(--testo); font-weight: 600; }
 .etichette { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; padding: 0; list-style: none; }
 .etichette li { font-size: 0.82rem; padding: 2px 10px; border-radius: 999px; background: var(--superficie-2); color: var(--secondario); }
 
@@ -145,6 +158,23 @@ section { padding: 56px 0 8px; }
 .voce .testa { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
 .voce .livello { font-size: 0.8rem; color: var(--tenue); white-space: nowrap; }
 .voce .etichette { margin: 10px 0 0; }
+
+/* --- Modalità --- */
+.modalita { display: flex; flex-direction: column; }
+.modalita .mappe-modalita { font-size: 0.85rem; margin-top: auto; padding-top: 10px; }
+.modalita .mappe-modalita b, .modalita .varianti b { color: var(--testo); font-weight: 600; }
+.modalita .varianti { font-size: 0.9rem; }
+h5 { font-size: 0.85rem; margin: 0 0 6px; color: var(--testo); }
+.arcade { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 20px; margin-top: 12px; }
+.arcade .nota { margin: 6px 0 0; }
+.serie, .potenziamenti { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 0.9rem; }
+.serie li { display: grid; grid-template-columns: 34px 1fr; gap: 8px; color: var(--secondario); }
+.serie b { color: var(--accento); font-variant-numeric: tabular-nums; }
+.potenziamenti li { display: grid; grid-template-columns: 12px auto 1fr; gap: 8px; align-items: center; color: var(--secondario); }
+.potenziamenti i { width: 10px; height: 10px; border-radius: 1px; transform: rotate(45deg); }
+.potenziamenti b { color: var(--testo); font-weight: 600; }
+.potenziamenti span { text-align: right; font-variant-numeric: tabular-nums; }
+@media (min-width: 640px) { .voce.larga { grid-column: span 2; } }
 
 .streak { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
 .streak li { display: grid; grid-template-columns: 64px 1fr auto; gap: 16px; align-items: center; background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--raggio); padding: 12px 16px; }

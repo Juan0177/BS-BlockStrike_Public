@@ -8,7 +8,7 @@ const el = (tag, attr = {}, ...figli) => {
     else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
     else if (v !== false && v != null) e.setAttribute(k, v);
   }
-  e.append(...figli.flat().filter((f) => f != null));
+  e.append(...figli.flat(Infinity).filter((f) => f != null));
   return e;
 };
 const SVG = 'http://www.w3.org/2000/svg';
@@ -53,6 +53,14 @@ $('#versione').textContent = `Versione ${d.versione} · aggiornato il ${new Date
 $('#aggiornato').textContent = `BS-BlockStrike ${d.versione}, dati del ${new Date(d.data).toLocaleDateString('it-IT')}.`;
 $('#salute').textContent = `${d.salute}`;
 
+// Testo con i **grassetti** di docs/NOVITA.md, senza interpretare altro HTML
+const conGrassetti = (testo) => testo.split('**').map((t, i) => (i % 2 ? el('b', { testo: t }) : t));
+
+// --- Novità della versione ---
+$('#titolo-novita').textContent = `Novità della ${d.versione.replace(/\.0$/, '')}`;
+$('#elenco-novita').append(...d.novita.map((v) => el('li', {}, conGrassetti(v))));
+if (!d.novita.length) $('#novita').hidden = true;
+
 // --- Suggerimento al passaggio del mouse ---
 const sugg = $('#suggerimento');
 function mostraSugg(x, y, contenuto) {
@@ -66,6 +74,8 @@ const nascondiSugg = () => (sugg.hidden = true);
 
 // --- Mappe ---
 const COLORI_SQUADRA = ['var(--squadra-0)', 'var(--squadra-1)'];
+const COLORE_POTENZIAMENTO = '#a66bff';
+const tutteModalita = d.modalita.length;
 
 // Zone Hardpoint una sopra l'altra (es. una galleria sotto una piazza): in pianta si sovrappongono
 const siToccano = (a, b) => a !== b && a.x[0] < b.x[1] && b.x[0] < a.x[1] && a.z[0] < b.z[1] && b.z[0] < a.z[1];
@@ -100,6 +110,11 @@ function pianta(m) {
     const t2 = svg('text', { x: f.x, y: f.z, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 2.6 * k, 'font-weight': 700, fill: '#ffd23a', stroke: '#111214', 'stroke-width': 0.45 * k, 'paint-order': 'stroke' });
     t2.textContent = f.nome;
     s.append(t2);
+  }
+  // Punti dei potenziamenti dell'Arcade: rombi viola
+  for (const p of m.potenziamenti ?? []) {
+    const r = 1.1 * k;
+    s.append(svg('path', { d: `M${p.x},${p.z - r}L${p.x + r},${p.z}L${p.x},${p.z + r}L${p.x - r},${p.z}Z`, fill: COLORE_POTENZIAMENTO, stroke: '#ffffff', 'stroke-width': 0.3 * k }));
   }
   for (const p of m.spawn) {
     if (p.squadra == null) continue;
@@ -140,7 +155,8 @@ function vistePianta(m) {
   const S = m.sezione;
   const dir = S?.asse === 'z' ? 'da nord (a sinistra) a sud' : 'da ovest (a sinistra) a est';
   const viste = [
-    { titolo: 'Vista dall\'alto', nota: S ? 'La linea tratteggiata è il taglio della sezione.' : '', el: pianta(m) },
+    { titolo: 'Vista dall\'alto', nota: [m.tetto ? `Mappa coperta: la vista dall'alto guarda sotto la copertura (sotto i ${num(m.tetto, 1)} m).` : '',
+      S ? 'La linea tratteggiata è il taglio della sezione.' : ''].filter(Boolean).join(' '), el: pianta(m) },
     ...(S ? [{ titolo: 'Sezione', nota: `Mappa tagliata lungo la linea tratteggiata e vista di lato, ${dir}; altezze ×${S.esagera}.`, el: sezione(m) }] : []),
   ];
   let i = 0;
@@ -194,7 +210,12 @@ function mostraMappa(m) {
       el('p', { testo: m.descrizione }),
       el('ul', { class: 'etichette' },
         el('li', { testo: `${num(m.larghezza)} × ${num(m.profondita)} m` }),
-        m.hardpoint.length ? el('li', { testo: `${m.hardpoint.length} zone Hardpoint` }) : null),
+        m.arena ? el('li', { testo: 'Arena' }) : null,
+        m.tetto ? el('li', { testo: 'Coperta' }) : null,
+        m.hardpoint.length ? el('li', { testo: `${m.hardpoint.length} zone Hardpoint` }) : null,
+        m.potenziamenti?.length ? el('li', { testo: `${m.potenziamenti.length} punti potenziamento` }) : null),
+      el('p', { class: 'modalita-mappa' }, el('b', { testo: 'Si gioca in: ' }),
+        m.modalita.length === tutteModalita ? 'tutte le modalità' : m.modalita.join(', ')),
       vistePianta(m),
       el('div', { class: 'legenda' },
         squadre ? el('span', {}, el('i', { style: 'background:var(--squadra-0)' }), 'Partenza squadra blu') : null,
@@ -202,31 +223,73 @@ function mostraMappa(m) {
         m.hardpoint.length ? el('span', {}, el('i', { class: 'zona' }), 'Zona Hardpoint') : null,
         m.hardpoint.some((h) => zonaSotto(m, h)) ? el('span', {}, el('i', { class: 'zona sotto' }), 'Zona sotterranea (↓)') : null,
         m.bandiere?.length ? el('span', {}, el('i', { style: 'background:transparent;border:2px solid #ffd23a;border-radius:50%' }), 'Bandiera del Dominio') : null,
-        m.siti?.length ? el('span', {}, el('i', { style: 'background:rgba(255,77,77,0.25);border:2px dashed #ff4d4d' }), 'Sito bomba (Cerca e distruggi)') : null))));
+        m.siti?.length ? el('span', {}, el('i', { style: 'background:rgba(255,77,77,0.25);border:2px dashed #ff4d4d' }), 'Sito bomba (Cerca e distruggi)') : null,
+        m.potenziamenti?.length ? el('span', {}, el('i', { class: 'rombo', style: `background:${COLORE_POTENZIAMENTO}` }), 'Potenziamento (Arcade)') : null))));
 }
 
 const schede = $('#schede-mappe');
-d.mappe.forEach((m, i) => schede.append(el('button', { type: 'button', role: 'tab', 'aria-selected': String(i === 0), testo: m.nome, onclick: (e) => {
+// Prima le mappe, poi le arene (si giocano solo in alcune modalità)
+const mappeInOrdine = [...d.mappe.filter((m) => !m.arena), ...d.mappe.filter((m) => m.arena)];
+mappeInOrdine.forEach((m, i) => schede.append(el('button', { type: 'button', role: 'tab', 'aria-selected': String(i === 0), onclick: (e) => {
   for (const b of schede.children) b.setAttribute('aria-selected', String(b === e.currentTarget));
   mostraMappa(m);
-} })));
-mostraMappa(d.mappe[0]);
+} }, m.nome, m.arena ? el('small', { testo: 'arena' }) : null)));
+mostraMappa(mappeInOrdine[0]);
 
 // --- Modalità ---
-$('#intro-modalita').textContent = `Partite fino a ${d.perSquadra} contro ${d.perSquadra}: i posti vuoti li prendono i bot. A fine partita si vota la prossima combinazione di mappa e modalità.`;
+$('#intro-modalita').textContent = `Partite fino a ${d.perSquadra} contro ${d.perSquadra}: i posti vuoti li prendono i bot. A fine partita si vota la prossima combinazione di mappa e modalità. `
+  + 'Le modalità con due varianti si giocano a squadre o tutti contro tutti: la sceglie l\'host, in playlist fa parte della combinazione votata.';
+const arene = d.mappe.filter((m) => m.arena).map((m) => m.nome);
+// Dove si gioca: tutte le mappe, tutte tranne le arene o l'elenco
+function mappeModalita(m) {
+  if (m.mappe.length === d.mappe.length) return 'tutte';
+  const senza = d.mappe.filter((x) => !m.mappe.includes(x.nome)).map((x) => x.nome);
+  if (senza.length && senza.every((x) => arene.includes(x))) return `tutte tranne le arene (${senza.join(' e ')})`;
+  return m.mappe.join(', ');
+}
+const limiti = (v, unita) => [v.limitePunteggio ? `${v.limitePunteggio} ${unita}` : null, v.limiteTempo ? `${v.limiteTempo} minuti` : null].filter(Boolean).join(', ');
+// Scheda dell'Arcade: moltiplicatore della serie e potenziamenti
+function dettagliArcade(a) {
+  return el('div', { class: 'arcade' },
+    el('div', {},
+      el('h5', { testo: 'Moltiplicatore della serie' }),
+      el('ol', { class: 'serie' },
+        el('li', {}, el('b', { testo: '×1' }), el('span', { testo: `${a.punti} punti a uccisione` })),
+        a.serie.map((x) => el('li', {}, el('b', { testo: `×${x.molt}` }), el('span', { testo: `dalla ${x.uccisioni}ª uccisione di fila: ${a.punti * x.molt} punti` })))),
+      el('p', { class: 'nota', testo: `Morendo si torna a ×1. Chi uccide un avversario in serie prende ${a.bonusVittima} punti in più per ogni livello del suo moltiplicatore oltre ×1.` })),
+    el('div', {},
+      el('h5', { testo: 'Potenziamenti a terra' }),
+      el('ul', { class: 'potenziamenti' }, a.potenziamenti.map((p) => el('li', {},
+        el('i', { style: `background:${p.colore}` }), el('b', { testo: p.nome }),
+        el('span', { testo: p.durata ? `${p.durata} s` : p.salute ? `+${p.salute} salute` : '' })))),
+      el('p', { class: 'nota', testo: `Si prendono passandoci sopra; il punto torna dopo ${a.ricomparsa} s con il potenziamento successivo. Morendo si perdono.` })));
+}
 for (const m of d.modalita) {
   const tag = [m.varianti ? 'A squadre o tutti contro tutti' : m.squadre ? 'A squadre' : 'Tutti contro tutti'];
-  if (m.limitePunteggio) tag.push(`${m.limitePunteggio} ${m.unita ?? 'uccisioni'}`);
+  // Varianti con limiti diversi (presi da Team Deathmatch e Tutti contro tutti): una riga per variante
+  const perVariante = m.varianti && new Set(m.varianti.map((v) => limiti(v, m.unita))).size > 1;
+  if (m.varianti && !perVariante) tag.push(...limiti(m.varianti[0], m.unita).split(', ').filter(Boolean));
+  if (m.limitePunteggio) tag.push(`${m.limitePunteggio} ${m.unita}`);
   // A round (Prima linea, Cerca e distruggi): il tempo è di ogni round
   if (m.roundPerVincere) tag.push(`${m.roundPerVincere} round vinti`);
-  if (m.limiteTempo) tag.push(m.roundPerVincere ? `${m.limiteTempo} minuti a round` : `${m.limiteTempo} minuti`);
+  if (m.limiteTempo && !m.varianti) tag.push(m.roundPerVincere ? `${m.limiteTempo} minuti a round` : `${m.limiteTempo} minuti`);
   if (m.durataZona) tag.push(`zona nuova ogni ${m.durataZona} s`);
-  $('#elenco-modalita').append(el('article', { class: 'voce' },
+  if (m.limiteRegolabile) tag.push(`limite di ${m.unita} a scelta (${num(m.limiteRegolabile[0])}–${num(m.limiteRegolabile[1])})`);
+  tag.push(...m.regole);
+  $('#elenco-modalita').append(el('article', { class: `voce modalita${m.arcade ? ' larga' : ''}`, id: `modalita-${m.id}` },
     el('h4', { testo: m.nome }),
-    el('p', { testo: m.descrizione }),
+    el('p', { testo: m.descrizione + '.' }),
     m.scala ? el('p', { testo: `Scala: ${m.scala.join(' → ')}` }) : null,
-    el('ul', { class: 'etichette' }, tag.map((t) => el('li', { testo: t })))));
+    perVariante ? el('p', { class: 'varianti' }, m.varianti.map((v, i) => [i ? ' · ' : '', el('b', { testo: v.nome[0].toUpperCase() + v.nome.slice(1) }), `: ${limiti(v, m.unita)}`])) : null,
+    m.arcade ? dettagliArcade(m.arcade) : null,
+    el('ul', { class: 'etichette' }, tag.map((t) => el('li', { testo: t }))),
+    el('p', { class: 'mappe-modalita' }, el('b', { testo: 'Mappe: ' }), mappeModalita(m))));
 }
+
+// --- Movimento: i numeri del vault e del wall run dalla configurazione ---
+const mv = d.movimento;
+$('#testo-vault').textContent = `Correndo contro un muretto o una cassa alta da ${num(mv.vault.minimo, 1)} a ${num(mv.vault.massimo, 1)} m premi salto: ci sali sopra o, se dietro c'è il vuoto, lo scavalchi. Parte anche dalla scivolata; non si spara né si mira durante il vault.`;
+$('#testo-wall-run').textContent = `Con il perk Maratoneta (in Arcade ce l'hanno tutti) salta da uno sprint o da un tac sprint verso un muro quasi parallelo: ci corri sopra fino a ${num(mv.wallRun.durata, 1)} s cadendo piano, e con il salto ti stacchi con una spinta. Sul muro si spara dall'anca. Ogni muro si corre una volta prima di toccare terra.`;
 
 // --- Armi ---
 const ARMI = d.armi;

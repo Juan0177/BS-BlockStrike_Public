@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>BS-BlockStrike</title>
-  <meta name="description" content="FPS multiplayer da browser a blocchi, per giocare tra amici: mappe, modalità, armi con TTK, perk e scorestreak.">
+  <meta name="description" content="FPS multiplayer a blocchi per giocare tra amici con il launcher per Windows: mappe, modalità, movimento, armi con TTK, perk e scorestreak.">
   <link rel="icon" href="icona.svg" type="image/svg+xml">
-  <meta name="versione-dati" content="90b88da9a0">
-  <link rel="stylesheet" href="stile.css?v=c50db4925d">
+  <meta name="versione-dati" content="b1f4d91d3a">
+  <link rel="stylesheet" href="stile.css?v=a6e98ffcb9">
   <script>
     // Tema scelto a mano (pulsante in alto): applicato prima del disegno per non lampeggiare
     try { const t = localStorage.getItem('bs-tema'); if (t) document.documentElement.dataset.theme = t; } catch { }
@@ -17,8 +17,11 @@
   <header class="barra">
     <a class="marchio" href="#inizio"><img src="icona.svg" alt="" width="28" height="28"> BS-BlockStrike</a>
     <nav aria-label="Sezioni">
+      <a href="#entrare">Come entrare</a>
+      <a href="#novita">Novità</a>
       <a href="#mappe">Mappe</a>
       <a href="#modalita">Modalità</a>
+      <a href="#movimento">Movimento</a>
       <a href="#armi">Armi</a>
       <a href="#armi-dev">Armi DEV</a>
       <a href="#perk">Perk e scorestreak</a>
@@ -32,24 +35,36 @@
     <section id="inizio" class="apertura">
       <div class="apertura-testo">
         <h1>BS-BlockStrike</h1>
-        <p class="sottotitolo">FPS multiplayer da browser con grafica a blocchi, per partite fino a 6 contro 6 tra amici. Il server gira sul PC di chi ospita, i posti vuoti li riempiono i bot.</p>
+        <p class="sottotitolo">FPS multiplayer con grafica a blocchi, per partite fino a 6 contro 6 tra amici. Il server gira sul PC di chi ospita, i posti vuoti li riempiono i bot; si entra con il launcher per Windows.</p>
         <div class="azioni">
           <a class="pulsante" href="https://github.com/Juan0177/BS-BlockStrike_Public/releases/latest/download/BlockStrike.exe">Scarica il launcher per Windows</a>
           <a class="pulsante secondario" href="https://github.com/Juan0177/BS-BlockStrike_Public/releases/latest">Note della versione</a>
         </div>
+        <p class="avviso"><b>Dalla 1.9 serve il launcher nuovo.</b> I launcher di prima e il browser non possono più entrare: scaricalo di nuovo anche se l'avevi già. La prima volta rientri nel tuo account con nickname e password.</p>
         <p class="versione" id="versione"></p>
       </div>
-      <ol class="passi" aria-label="Come entrare">
-        <li><b>Scarica</b> BlockStrike.exe e aprilo. Al primo avvio Windows può avvisare "Windows ha protetto il PC": scegli <i>Ulteriori informazioni</i> e poi <i>Esegui comunque</i>.</li>
-        <li><b>Incolla il codice invito</b> che ti manda l'host (una volta sola).</li>
-        <li><b>Aspetta</b> che l'host ti approvi: il launcher installa la rete privata ZeroTier e apre il gioco da solo.</li>
-        <li><b>Accedi</b> con nickname e password: l'host ti aggiunge alla whitelist.</li>
-      </ol>
+      <div class="come-entrare" id="entrare">
+        <h2>Come entrare</h2>
+        <ol class="passi">
+          <li><b>Scarica</b> BlockStrike.exe e aprilo. Al primo avvio Windows può avvisare "Windows ha protetto il PC": scegli <i>Ulteriori informazioni</i> e poi <i>Esegui comunque</i>.</li>
+          <li><b>Incolla il codice invito</b> che ti manda l'host (una volta sola).</li>
+          <li><b>Aspetta</b> che l'host ti approvi: il launcher installa ZeroTier, la rete privata dell'host, e ci entra da solo.</li>
+          <li><b>Il gioco si scarica dall'host</b>, pochi MB e solo quando esce una versione nuova, poi si apre dal tuo PC: dall'host passa solo la partita.</li>
+          <li><b>Accedi</b> con nickname e password: l'host ti aggiunge alla whitelist.</li>
+        </ol>
+        <p class="nota-passi">Ogni volta basta aprire il launcher: controlla da solo la versione dell'host, così tutti giocano con la stessa.</p>
+      </div>
+    </section>
+
+    <section id="novita">
+      <h2 id="titolo-novita">Novità</h2>
+      <ul class="novita" id="elenco-novita"></ul>
+      <p><a href="https://github.com/Juan0177/BS-BlockStrike_Public/releases">Tutte le versioni</a></p>
     </section>
 
     <section id="mappe">
       <h2>Mappe</h2>
-      <p class="intro">Mappe a blocchi piccole e verticali. Nella vista dall'alto: punti di partenza delle due squadre e zone dell'Hardpoint.</p>
+      <p class="intro">Mappe a blocchi piccole e verticali, più le arene fatte per il movimento, che si giocano solo in alcune modalità. Nella vista dall'alto: partenze delle due squadre, zone dell'Hardpoint, bandiere del Dominio, siti di Cerca e distruggi e punti dei potenziamenti dell'Arcade.</p>
       <div class="schede" role="tablist" id="schede-mappe"></div>
       <div id="mappa"></div>
     </section>
@@ -58,6 +73,19 @@
       <h2>Modalità di gioco</h2>
       <p class="intro" id="intro-modalita"></p>
       <div class="griglia" id="elenco-modalita"></div>
+    </section>
+
+    <section id="movimento">
+      <h2>Movimento</h2>
+      <p class="intro">Movimento come in COD, con qualcosa in più per salire e correre sui muri. Niente bunny hop né doppio salto.</p>
+      <div class="griglia">
+        <article class="voce"><h4>Sprint e tac sprint</h4><p>Sprint tenuto o a tocco; con un doppio tocco il tac sprint, più veloce, finché dura la sua barra.</p></article>
+        <article class="voce"><h4>Scivolata</h4><p>Dallo sprint, il tasto per accovacciarsi fa la scivolata; si curva un poco e si rialza con sprint o salto. In Arcade è più veloce e più lunga, in Solo lanciatori va al doppio della velocità.</p></article>
+        <article class="voce"><h4>Vault</h4><p id="testo-vault"></p></article>
+        <article class="voce"><h4>Wall run</h4><p id="testo-wall-run"></p></article>
+        <article class="voce"><h4>Accovacciarsi e sdraiarsi</h4><p>Accovacciati e sdraiati si va più piano ma si spara più precisi. Scale a pioli e rampe per cambiare piano.</p></article>
+        <article class="voce"><h4>Hit flinch</h4><p>Quando ti colpiscono la mira sobbalza davvero: chi spara per primo ha un vantaggio.</p></article>
+      </div>
     </section>
 
     <section id="armi">
@@ -95,18 +123,17 @@
     <section id="funzionalita">
       <h2>Funzionalità e particolarità</h2>
       <div class="griglia">
-        <article class="voce"><h4>Movimento come in COD</h4><p>Sprint tenuto o a tocco, tac sprint con doppio Shift, scivolata, accovacciarsi, sdraiarsi. Hit flinch: quando ti colpiscono la mira sobbalza davvero.</p></article>
         <article class="voce"><h4>Senza rinculo</h4><p>Le armi non hanno rinculo: contano dispersione, distanza e gimmick (raffica, cadenza crescente, morso, perforazione, bipiede...).</p></article>
         <article class="voce"><h4>Armaiolo</h4><p>Ogni arma sale di livello con le uccisioni e sblocca accessori: silenziatore, ottiche, laser, impugnature, caricatori estesi, slug e pallettoni. Fino a 5 per arma.</p></article>
         <article class="voce"><h4>Progressione</h4><p>Livelli, sblocchi, sfide (il coltello da lancio si guadagna), skin per armi e personaggio, maestria delle armi (Oro, Platino, Diamante), 10 prestigi con emblema, statistiche per modalità e per arma e storico delle partite.</p></article>
-        <article class="voce"><h4>Bot che si regolano</h4><p>Facile, Normale, Difficile, Ultra e Auto, che si adatta al K/D degli avversari. Giocano gli obiettivi (bandiere, piastrine, Postazione, bomba), usano abilità e scorestreak, raccolgono armi a terra, escono dal fuoco e saltano le tripwire.</p></article>
-        <article class="voce"><h4>Playlist continua</h4><p>Squadre pari completate dai bot; la prima partita è a sorpresa, poi si vota la prossima sotto i risultati e parte da sola.</p></article>
+        <article class="voce"><h4>Bot che si regolano</h4><p>Facile, Normale, Difficile, Ultra e Auto, che si adatta al K/D degli avversari. Giocano gli obiettivi (bandiere, piastrine, Postazione, bomba), usano abilità e scorestreak, raccolgono armi a terra e potenziamenti, scavalcano i muretti, escono dal fuoco e saltano le tripwire.</p></article>
+        <article class="voce"><h4>Playlist continua</h4><p>Squadre pari completate dai bot; la prima partita è a sorpresa, poi si vota la prossima sotto i risultati e parte da sola. Le modalità escono solo sulle mappe adatte.</p></article>
         <article class="voce"><h4>Ping alla squadra</h4><p>Con la rotella o X segnali il nemico nel mirino o un punto. Il ping su un nemico lo segue per qualche secondo e richiama alcuni bot liberi, senza mandarli tutti.</p></article>
         <article class="voce"><h4>Armi a terra</h4><p>Chi muore lascia l'arma che aveva in mano: la raccogli con E al posto della tua.</p></article>
         <article class="voce"><h4>Killcam e replay</h4><p>Killcam in prima persona, negli occhi di chi ti ha ucciso, e a fine partita il replay della giocata migliore.</p></article>
-        <article class="voce"><h4>Editor di mappe</h4><p>Un editor a blocchi nel browser per costruire nuove mappe, con spawn, zone dell'Hardpoint, bandiere del Dominio e siti di Cerca e distruggi.</p></article>
-        <article class="voce"><h4>Server sul PC dell'host</h4><p>Nessun server a pagamento: l'host avvia il gioco, gli amici entrano con il launcher attraverso una rete privata ZeroTier, senza toccare il router.</p></article>
-        <article class="voce"><h4>Nel browser</h4><p>Gira in Edge o Chrome con Three.js. Quattro livelli di grafica, da Bassa a Ultra con le ombre degli edifici.</p></article>
+        <article class="voce"><h4>Editor di mappe</h4><p>Un editor a blocchi per costruire nuove mappe, con rampe, spawn, zone dell'Hardpoint, bandiere del Dominio e siti di Cerca e distruggi.</p></article>
+        <article class="voce"><h4>Server sul PC dell'host</h4><p>Nessun server a pagamento: l'host avvia il gioco e gli amici entrano solo con il launcher, attraverso la rete privata ZeroTier dell'host, senza toccare il router. Il launcher scarica il gioco dall'host quando cambia versione: si gioca sempre tutti con la stessa.</p></article>
+        <article class="voce"><h4>Dal launcher</h4><p>Il gioco, fatto con Three.js, si apre dal launcher in una finestra di Edge e gira dal tuo PC. Quattro livelli di grafica, da Bassa a Ultra con le ombre degli edifici.</p></article>
       </div>
     </section>
   </main>
@@ -117,6 +144,6 @@
   </footer>
 
   <div class="suggerimento" id="suggerimento" role="status" hidden></div>
-  <script type="module" src="sito.js?v=55cee43a9f"></script>
+  <script type="module" src="sito.js?v=295b4f9318"></script>
 </body>
 </html>
