@@ -116,6 +116,10 @@ function pianta(m) {
     const r = 1.1 * k;
     s.append(svg('path', { d: `M${p.x},${p.z - r}L${p.x + r},${p.z}L${p.x},${p.z + r}L${p.x - r},${p.z}Z`, fill: COLORE_POTENZIAMENTO, stroke: '#ffffff', 'stroke-width': 0.3 * k }));
   }
+  // Basi di Cattura la bandiera: un'asta con il drappo del colore della squadra
+  (m.basiBandiera ?? []).forEach((b, sq) => {
+    s.append(svg('path', { d: `M${b.x},${b.z + 1.6 * k}V${b.z - 1.6 * k}h${1.6 * k}l${-0.5 * k},${0.5 * k}l${0.5 * k},${0.5 * k}H${b.x}`, fill: COLORI_SQUADRA[sq], stroke: '#ffffff', 'stroke-width': 0.3 * k, 'stroke-linejoin': 'round' }));
+  });
   for (const p of m.spawn) {
     if (p.squadra == null) continue;
     s.append(svg('circle', { cx: p.x, cy: p.z, r: 0.9 * k, fill: COLORI_SQUADRA[p.squadra], stroke: '#ffffff', 'stroke-width': 0.35 * k }));
@@ -224,7 +228,8 @@ function mostraMappa(m) {
         m.hardpoint.some((h) => zonaSotto(m, h)) ? el('span', {}, el('i', { class: 'zona sotto' }), 'Zona sotterranea (↓)') : null,
         m.bandiere?.length ? el('span', {}, el('i', { style: 'background:transparent;border:2px solid #ffd23a;border-radius:50%' }), 'Bandiera del Dominio') : null,
         m.siti?.length ? el('span', {}, el('i', { style: 'background:rgba(255,77,77,0.25);border:2px dashed #ff4d4d' }), 'Sito bomba (Cerca e distruggi)') : null,
-        m.potenziamenti?.length ? el('span', {}, el('i', { class: 'rombo', style: `background:${COLORE_POTENZIAMENTO}` }), 'Potenziamento (Arcade)') : null))));
+        m.potenziamenti?.length ? el('span', {}, el('i', { class: 'rombo', style: `background:${COLORE_POTENZIAMENTO}` }), 'Potenziamento (Arcade)') : null,
+        m.basiBandiera?.length ? el('span', {}, el('i', { class: 'base-bandiera' }), 'Base della bandiera (Cattura la bandiera)') : null))));
 }
 
 const schede = $('#schede-mappe');

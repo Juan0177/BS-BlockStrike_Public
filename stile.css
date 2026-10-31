@@ -145,6 +145,7 @@ section { padding: 56px 0 8px; }
 .legenda i.zona { border-radius: 2px; border: 2px solid var(--testo); background: none; }
 .legenda i.zona.sotto { border-style: dashed; }
 .legenda i.rombo { border-radius: 1px; transform: rotate(45deg); width: 9px; height: 9px; }
+.legenda i.base-bandiera { border-radius: 0; width: 9px; height: 8px; background: linear-gradient(90deg, var(--squadra-0) 50%, var(--squadra-1) 50%); clip-path: polygon(0 0, 100% 0, 70% 50%, 100% 100%, 0 100%); }
 .modalita-mappa { font-size: 0.9rem; }
 .modalita-mappa b { color: var(--testo); font-weight: 600; }
 .etichette { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; padding: 0; list-style: none; }
