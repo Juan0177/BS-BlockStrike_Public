@@ -102,6 +102,26 @@ static class Launcher {
     return IpValido(host) && porta >= 1 && porta <= 65535;
   }
 
+  // IPv4 privato (10/8, 172.16/12, 192.168/16): gli unici ammessi in «Rete locale»
+  public static bool IpPrivato(string ip) {
+    if (!IpValido(ip)) return false;
+    string[] n = ip.Split('.');
+    int a = int.Parse(n[0]), b = int.Parse(n[1]);
+    return a == 10 || (a == 172 && b >= 16 && b <= 31) || (a == 192 && b == 168);
+  }
+
+  // Indirizzo del PC dell'host nella stessa casa (opzione «Rete locale»): "<IP privato>" oppure "<IP privato>:<porta>",
+  // senza nomi, schemi, percorsi o altri caratteri (lo stampa `npm run launcher -- --invito`)
+  public static bool LeggiIndirizzoLocale(string testo, out string host, out int porta) {
+    host = null;
+    porta = 3000;
+    var m = Regex.Match((testo ?? "").Trim(), @"^([0-9.]+)(?::(\d{1,5}))?$");
+    if (!m.Success) return false;
+    host = m.Groups[1].Value;
+    if (m.Groups[2].Success) porta = int.Parse(m.Groups[2].Value);
+    return IpPrivato(host) && porta >= 1 && porta <= 65535;
+  }
+
   // Sottorete /24, quella predefinita delle reti ZeroTier
   public static bool StessaSottorete(string ip, string host) {
     int a = ip.LastIndexOf('.'), b = host.LastIndexOf('.');
@@ -395,6 +415,17 @@ static class Launcher {
       && !LeggiInvito("a1b2c3d4e5f6a7b8@10.147.17.1:70000", out r, out h, out p)
       && !LeggiInvito("a1b2c3d4e5f6a7b8@10.147.17.1 & calc", out r, out h, out p)
       && !ReteValida("a1b2c3d4e5f6a7b8 & calc")
+      && LeggiIndirizzoLocale(" 192.168.1.10 ", out h, out p) && h == "192.168.1.10" && p == 3000
+      && LeggiIndirizzoLocale("192.168.1.10:3001", out h, out p) && h == "192.168.1.10" && p == 3001
+      && LeggiIndirizzoLocale("10.0.0.5", out h, out p) && LeggiIndirizzoLocale("172.16.0.1", out h, out p) && LeggiIndirizzoLocale("172.31.255.254:80", out h, out p)
+      && !LeggiIndirizzoLocale("172.32.0.1", out h, out p) && !LeggiIndirizzoLocale("172.15.0.1", out h, out p)
+      && !LeggiIndirizzoLocale("8.8.8.8", out h, out p) && !LeggiIndirizzoLocale("127.0.0.1", out h, out p)
+      && !LeggiIndirizzoLocale("192.168.01.10", out h, out p) && !LeggiIndirizzoLocale("192.168.1.256", out h, out p)
+      && !LeggiIndirizzoLocale("192.168.1.10:0", out h, out p) && !LeggiIndirizzoLocale("192.168.1.10:70000", out h, out p)
+      && !LeggiIndirizzoLocale("pc-host.lan", out h, out p) && !LeggiIndirizzoLocale("pc-host:3000", out h, out p)
+      && !LeggiIndirizzoLocale("http://192.168.1.10", out h, out p) && !LeggiIndirizzoLocale("192.168.1.10/x", out h, out p)
+      && !LeggiIndirizzoLocale("192.168.1.10 & calc", out h, out p) && !LeggiIndirizzoLocale("a1b2c3d4e5f6a7b8@192.168.1.10", out h, out p)
+      && !LeggiIndirizzoLocale("", out h, out p) && !LeggiIndirizzoLocale(null, out h, out p)
       && ArgomentiEdge("http://10.147.17.1:3000/", @"C:\p").Contains("--start-maximized");
     Console.WriteLine(ok ? "autotest ok" : "autotest FALLITO");
     return ok ? 0 : 1;
@@ -515,6 +546,11 @@ class Finestra : Form {
     VERDE = Rgb(0x3ddc84), LINEA = Color.FromArgb(20, 255, 255, 255);
   static readonly string CARTELLA = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BlockStrike");
   static readonly string FILE_INVITO = Path.Combine(CARTELLA, "invito.txt");
+  // Rete locale: IP[:porta] del PC dell'host; modo.txt ricorda la scelta ("locale" o "invito")
+  static readonly string FILE_LOCALE = Path.Combine(CARTELLA, "locale.txt");
+  static readonly string FILE_MODO = Path.Combine(CARTELLA, "modo.txt");
+  const string ESEMPIO_INVITO = "Codice non valido: deve essere come a1b2c3d4e5f6a7b8@10.147.17.1 (chiedilo all'host).";
+  const string ESEMPIO_LOCALE = "Indirizzo non valido: scrivi l'IP del PC dell'host, come 192.168.1.10 o 192.168.1.10:3000 (chiedilo all'host).";
   static readonly string CARTELLA_GIOCO = Path.Combine(CARTELLA, "gioco");
   const int BARRA_TITOLO = 36, PIEDE = 276;
   static readonly Rectangle PALLINO = new Rectangle(40, 294, 8, 8);
@@ -523,6 +559,7 @@ class Finestra : Form {
   readonly bool host;
   readonly string anteprima;
   string rete = Config.Rete, ip = Config.Host;
+  bool modoLocale; // amico nella stessa casa: niente ZeroTier, si va dritti all'IP privato dell'host
   int porta = Config.Porta;
   volatile int giro; // cambia quando si ricomincia: il giro vecchio si ferma da solo
   ServerLocale locale; // serve la cartella del gioco a Edge finché il gioco è aperto
@@ -538,7 +575,9 @@ class Finestra : Form {
   readonly TextBox campoInvito = new TextBox();
   readonly Label erroreInvito = new Label();
   readonly Bottone cambiaInvito = new Bottone();
-  static readonly Rectangle CAMPO = new Rectangle(0, 50, 330, 40); // riquadro del campo nel pannello dell'invito
+  readonly Bottone sceltaInvito = new Bottone(), sceltaLocale = new Bottone(); // i due modi di collegarsi
+  readonly Label spiega = new Label();
+  static readonly Rectangle CAMPO = new Rectangle(0, 56, 330, 40); // riquadro del campo nel pannello dell'invito
 
   public Finestra(bool host, string anteprima) {
     this.host = host;
@@ -577,8 +616,21 @@ class Finestra : Form {
     // Codice invito: "<ID rete>@<IP host>", lo manda l'host; un passo a parte, solo la prima volta
     pannelloInvito.SetBounds(40, 134, 440, 136);
     pannelloInvito.Visible = false;
-    var titoloInvito = new Label { Text = "Codice invito", Location = new Point(0, 0), AutoSize = true, Font = new Font("Segoe UI Semibold", 11f) };
-    var spiega = new Label { Text = "Incolla il codice che ti ha mandato l'host: serve solo la prima volta.", Location = new Point(1, 24), AutoSize = true, ForeColor = T2, Font = piccolo };
+    // Scelta del modo: fuori casa con il codice invito (ZeroTier) o nella stessa casa con l'IP del PC dell'host
+    sceltaInvito.Text = "Codice invito (ZeroTier)";
+    sceltaInvito.SetBounds(0, 0, 200, 28);
+    sceltaInvito.Click += delegate { ImpostaModo(false); };
+    sceltaLocale.Text = "Rete locale (stessa casa)";
+    sceltaLocale.SetBounds(206, 0, 200, 28);
+    sceltaLocale.Click += delegate { ImpostaModo(true); };
+    foreach (var b in new[] { sceltaInvito, sceltaLocale }) {
+      b.Font = new Font("Segoe UI Semibold", 9.5f);
+      b.Raggio = 6;
+      b.SfondoSopra = S2;
+    }
+    spiega.SetBounds(1, 34, 440, 18);
+    spiega.ForeColor = T2;
+    spiega.Font = piccolo;
     campoInvito.SetBounds(CAMPO.X + 12, CAMPO.Y + 11, CAMPO.Width - 24, 20);
     campoInvito.BorderStyle = BorderStyle.None;
     campoInvito.BackColor = S3;
@@ -600,10 +652,10 @@ class Finestra : Form {
     var entra = new Bottone { Text = "Entra", Font = new Font("Segoe UI Semibold", 10.5f) };
     entra.SetBounds(342, CAMPO.Y, 98, CAMPO.Height);
     entra.Click += delegate { SalvaInvito(); };
-    erroreInvito.SetBounds(0, 96, 440, 40);
+    erroreInvito.SetBounds(0, 100, 440, 36);
     erroreInvito.ForeColor = ROSSO;
     erroreInvito.Font = piccolo;
-    pannelloInvito.Controls.AddRange(new Control[] { titoloInvito, spiega, campoInvito, entra, erroreInvito });
+    pannelloInvito.Controls.AddRange(new Control[] { sceltaInvito, sceltaLocale, spiega, campoInvito, entra, erroreInvito });
     AcceptButton = entra;
 
     stato.SetBounds(56, PIEDE + 1, 320, Height - PIEDE - 1);
@@ -612,7 +664,7 @@ class Finestra : Form {
     stato.Font = piccolo;
     stato.AutoEllipsis = true;
 
-    cambiaInvito.Text = "Cambia invito";
+    cambiaInvito.Text = "Cambia"; // torna alla scelta tra codice invito e rete locale
     cambiaInvito.SetBounds(384, PIEDE + 8, 96, 28);
     cambiaInvito.Font = piccolo;
     cambiaInvito.Sfondo = Color.Empty;
@@ -707,8 +759,11 @@ class Finestra : Form {
       Avvia();
       return;
     }
-    string salvato = File.Exists(FILE_INVITO) ? File.ReadAllText(FILE_INVITO) : "";
-    if (Launcher.LeggiInvito(salvato, out rete, out ip, out porta)) {
+    // La scelta di prima (codice invito o rete locale) con il suo valore salvato
+    modoLocale = Leggi(FILE_MODO).Trim() == "locale";
+    bool pronto = modoLocale ? Launcher.LeggiIndirizzoLocale(Leggi(FILE_LOCALE), out ip, out porta)
+      : Launcher.LeggiInvito(Leggi(FILE_INVITO), out rete, out ip, out porta);
+    if (pronto) {
       cambiaInvito.Visible = true;
       Avvia();
     } else ChiediInvito("");
@@ -718,8 +773,9 @@ class Finestra : Form {
     var t = new System.Windows.Forms.Timer { Interval = 15000 };
     t.Tick += delegate { Close(); };
     t.Start();
-    if (anteprima == "invito") {
-      ChiediInvito("Codice non valido: deve essere come a1b2c3d4e5f6a7b8@10.147.17.1 (chiedilo all'host).");
+    if (anteprima == "invito" || anteprima == "locale") {
+      modoLocale = anteprima == "locale";
+      ChiediInvito(modoLocale ? ESEMPIO_LOCALE : ESEMPIO_INVITO);
       return;
     }
     cambiaInvito.Visible = !host;
@@ -728,24 +784,54 @@ class Finestra : Form {
     else Stato(questo, host ? "Attendo che il server sia pronto..." : "In attesa che l'host ti approvi nella rete ZeroTier...");
   }
 
+  static string Leggi(string file) {
+    try {
+      return File.Exists(file) ? File.ReadAllText(file) : "";
+    } catch (IOException) {
+      return "";
+    }
+  }
+
   void ChiediInvito(string errore) {
     giro++;
     gioca.Visible = barra.Visible = cambiaInvito.Visible = false;
     pannelloInvito.Visible = true;
+    ImpostaModo(modoLocale);
     erroreInvito.Text = errore;
-    MostraStato("Serve il codice invito dell'host", ACCENTO);
+  }
+
+  // Codice invito o rete locale: il bottone scelto è pieno, il campo mostra il valore salvato per quel modo
+  void ImpostaModo(bool locale) {
+    modoLocale = locale;
+    foreach (var b in new[] { sceltaInvito, sceltaLocale }) {
+      bool scelto = (b == sceltaLocale) == locale;
+      b.Sfondo = scelto ? S3 : Color.Empty;
+      b.Colore = scelto ? ACCENTO : T2;
+      b.AccessibleName = b.Text + (scelto ? " (scelto)" : "");
+      b.Invalidate();
+    }
+    spiega.Text = locale
+      ? "Scrivi l'IP del PC dell'host nella vostra rete, come 192.168.1.10."
+      : "Incolla il codice che ti ha mandato l'host: serve solo la prima volta.";
+    campoInvito.AccessibleName = locale ? "IP del PC dell'host" : "Codice invito";
+    campoInvito.Text = Leggi(locale ? FILE_LOCALE : FILE_INVITO).Trim();
+    erroreInvito.Text = "";
+    MostraStato(locale ? "Serve l'IP del PC dell'host" : "Serve il codice invito dell'host", ACCENTO);
     campoInvito.Focus();
+    campoInvito.SelectAll();
   }
 
   void SalvaInvito() {
-    string r, h;
+    string r = rete, h;
     int p;
-    if (!Launcher.LeggiInvito(campoInvito.Text, out r, out h, out p)) {
-      erroreInvito.Text = "Codice non valido: deve essere come a1b2c3d4e5f6a7b8@10.147.17.1 (chiedilo all'host).";
+    bool ok = modoLocale ? Launcher.LeggiIndirizzoLocale(campoInvito.Text, out h, out p) : Launcher.LeggiInvito(campoInvito.Text, out r, out h, out p);
+    if (!ok) {
+      erroreInvito.Text = modoLocale ? ESEMPIO_LOCALE : ESEMPIO_INVITO;
       return;
     }
     Directory.CreateDirectory(CARTELLA);
-    File.WriteAllText(FILE_INVITO, campoInvito.Text.Trim());
+    File.WriteAllText(modoLocale ? FILE_LOCALE : FILE_INVITO, campoInvito.Text.Trim());
+    File.WriteAllText(FILE_MODO, modoLocale ? "locale" : "invito");
     rete = r;
     ip = h;
     porta = p;
@@ -768,7 +854,7 @@ class Finestra : Form {
     int questo = Attesa();
     var t = new Thread(delegate () {
       try {
-        if (host) Host(questo); else Amico(questo);
+        if (host) Host(questo); else if (modoLocale) Locale(questo); else Amico(questo);
       } catch (Exception e) {
         Errore(questo, "Errore imprevisto: " + e.Message);
       }
@@ -982,6 +1068,27 @@ class Finestra : Form {
       Thread.Sleep(1000);
     }
     Errore(questo, "Il server non risponde: guarda la finestra del server per l'errore.");
+  }
+
+  // Amico nella stessa casa: niente ZeroTier, si aspetta che il PC dell'host risponda sulla rete locale (poi Gioca
+  // chiede /versione e procede come sempre). Dopo un po' l'errore dice cosa controllare
+  void Locale(int questo) {
+    string url = Indirizzo(ip);
+    Stato(questo, "Cerco il PC dell'host in rete locale (" + ip + ")...");
+    var tempo = Stopwatch.StartNew();
+    while (Attivo(questo)) {
+      if (Launcher.ServerRisponde(url)) {
+        Gioca(questo, ip);
+        return;
+      }
+      if (tempo.Elapsed.TotalSeconds > 15) {
+        Errore(questo, Launcher.HostRisponde(ip)
+          ? "Il PC dell'host (" + ip + ") risponde, ma il gioco no: il server è spento o il firewall di Windows dell'host blocca la porta " + porta + " sulla rete privata."
+          : "Il PC dell'host (" + ip + ") non risponde: controlla che sia acceso e nella stessa rete, che l'IP sia giusto e che il firewall di Windows permetta la porta " + porta + " sulla rete privata.");
+        return;
+      }
+      Thread.Sleep(1500);
+    }
   }
 
   void Amico(int questo) {
