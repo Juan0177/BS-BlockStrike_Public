@@ -1,11 +1,12 @@
-- **Punto di rifornimento**: in ogni partita dove le munizioni finiscono c'è un punto di rifornimento, una cassa con un
-  fascio di luce verde (scritta «Rifornimento · N» con gli usi rimasti, cerchio sulla minimappa e segnalino sulla
-  bussola). Fermo per 1 secondo vicino a lui ricarichi le riserve di tutte le armi, letale e tattica, come con la Cassa armi; poi devi
-  aspettare 40 secondi per riusarlo (se ci torni prima, un avviso ti dice tra quanti secondi):
-  - dopo 5 usi o 75 secondi cambia posizione, e 10 secondi prima la prossima si vede sulla minimappa (più chiara);
-  - non c'è nelle modalità con munizioni infinite o dove ogni round riparte pieno;
-  - se c'è un altro posto libero, nessuno rinasce a meno di 5 metri dal punto;
-  - in Prima linea il punto riparte da zero a ogni round (nuova posizione, 5 usi, attese azzerate);
-  - i bot a corto di munizioni ci vanno e lo usano come te, lasciando per il tempo di rifornirsi anche la zona o la
-    postazione che tengono (non la bomba né la bandiera).
-- Il riquadro della bussola si allarga per i nomi lunghi.
+- **Duetto, due pistole d'oro**: una nuova arma primaria, due Deagle d'oro una per mano. Il tasto sinistro del mouse
+  (o il grilletto destro del controller) spara con la destra, il tasto destro (o il grilletto sinistro) con la sinistra:
+  non si può mirare, ma ogni mano spara per conto suo e con velocità quasi da coltello.
+  - 3 colpi al busto da vicino, la testa uccide fino a 25 metri; il rinculo è forte;
+  - si sblocca con la Sfida del Duetto: 15 uccisioni con una pistola in una partita;
+  - R ricarica tutte e due le pistole. Nell'HUD ci sono due contatori, sinistra | destra, e la riserva è unica;
+  - se una pistola è scarica, il suo tasto non fa niente mentre l'altra continua a sparare;
+  - con i caricatori pieni, R fa ispezionare le pistole: si girano per mostrare i due lati, con la scritta rossa «/n»,
+    poi la destra arriva davanti alla visuale;
+  - i bot non la scelgono e non esce negli equipaggiamenti casuali (Gunfight, Spec Battle);
+  - in terza persona, a terra e nella killcam da fuori si vede una sola pistola, nella mano destra.
+- È la prima arma con un vero modello 3D; finché non si carica compare un blocco dorato.
