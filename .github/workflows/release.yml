@@ -25,7 +25,7 @@ jobs:
         shell: pwsh
         run: |
           $csc = "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
-          & $csc /nologo /codepage:65001 /target:winexe /out:BlockStrike.exe /win32icon:launcher\icona.ico "/resource:launcher\icona.ico,icona.ico" /r:System.Windows.Forms.dll /r:System.Drawing.dll launcher\Config.cs launcher\BlockStrike.cs
+          & $csc /nologo /codepage:65001 /target:winexe /out:BlockStrike.exe /win32icon:launcher\icona.ico "/resource:launcher\icona.ico,icona.ico" /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.ServiceProcess.dll /r:System.IO.Compression.dll launcher\Config.cs launcher\BlockStrike.cs
           if ($LASTEXITCODE -ne 0) { exit 1 }
       - name: Autotest
         shell: pwsh
