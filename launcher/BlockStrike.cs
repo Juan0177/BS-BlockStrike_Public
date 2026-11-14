@@ -1,6 +1,8 @@
 // Launcher di BS-BlockStrike per Windows (vedi docs/GUIDA-HOST.md).
 //   nessun argomento → amico: entra nella rete ZeroTier dell'host, aspetta il server, apre il gioco
 //   --locale         → host: aspetta il server su localhost e apre il gioco
+//   --locale --dev   → host in modalità DEV (avvia.bat lo chiede all'avvio): apre anche la diagnostica di rete
+//                    (http://127.0.0.1:<porta>/rete.html) in una seconda finestra di Edge sul secondo monitor
 //   --entra <rete>   → passo con i permessi di amministratore: zerotier-cli join
 //   --autotest [<zip> <impronta>] → verifica le funzioni pure (usato da test/launcher.test.js); con uno zip del
 //                    server e la sua impronta prova anche l'installazione del pacchetto vero
@@ -50,7 +52,8 @@ static class Launcher {
     if (modo == "--avvia-zerotier") return AvviaZeroTier();
     Application.EnableVisualStyles();
     Application.SetCompatibleTextRenderingDefault(false);
-    var finestra = new Finestra(Array.IndexOf(args, "--locale") >= 0, modo == "--anteprima" && args.Length > 1 ? args[1] : null);
+    var finestra = new Finestra(Array.IndexOf(args, "--locale") >= 0, modo == "--anteprima" && args.Length > 1 ? args[1] : null,
+      Array.IndexOf(args, "--dev") >= 0);
     Application.Run(finestra);
     return finestra.Codice;
   }
@@ -481,6 +484,68 @@ static class Launcher {
     return profilo;
   }
 
+  // --- Diagnostica di rete (modalità DEV dell'host, decisione 211) ---
+
+  [DllImport("user32.dll")]
+  static extern bool MoveWindow(IntPtr finestra, int x, int y, int larghezza, int altezza, bool ridisegna);
+  [DllImport("user32.dll")]
+  static extern bool ShowWindow(IntPtr finestra, int comando);
+  const int SW_MAXIMIZE = 3;
+
+  // Schermo per la diagnostica: il primo che non è il principale (dove si apre il gioco); null con un solo monitor
+  public static Screen SecondoSchermo() {
+    foreach (var s in Screen.AllScreens) if (!s.Primary) return s;
+    return null;
+  }
+
+  // Apre la diagnostica di rete in Edge con un profilo suo (un processo di Edge separato da quello del gioco, così
+  // rispetta posizione e dimensioni chieste) e la porta ingrandita sul secondo monitor. Con un solo monitor si apre
+  // come finestra normale. Restituisce il processo (null se Edge non c'è)
+  public static Process ApriDiagnostica(string url) {
+    string edge = TrovaEdge();
+    if (edge == null) return null;
+    string profilo = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"BlockStrike\edge-diagnostica");
+    Screen schermo = SecondoSchermo();
+    string argomenti = "--app=" + url + " --user-data-dir=\"" + profilo + "\"";
+    if (schermo != null) {
+      Rectangle a = schermo.WorkingArea;
+      argomenti += " --window-position=" + a.X + "," + a.Y + " --window-size=" + a.Width + "," + a.Height + " --start-maximized";
+    }
+    Process p;
+    try { p = Process.Start(edge, argomenti); } catch (Win32Exception) { return null; }
+    if (p == null || schermo == null) return p;
+    // Se Edge non rispetta la posizione (succede con la scala dello schermo diversa tra i monitor), la finestra si
+    // sposta da qui appena compare e si ingrandisce sul monitor dove si trova
+    var t = new Thread(delegate () {
+      try {
+        for (int i = 0; i < 50 && !p.HasExited; i++) {
+          Thread.Sleep(200);
+          p.Refresh();
+          if (p.MainWindowHandle == IntPtr.Zero) continue;
+          Rectangle a = schermo.WorkingArea;
+          MoveWindow(p.MainWindowHandle, a.X + 40, a.Y + 40, Math.Max(400, a.Width - 80), Math.Max(300, a.Height - 80), true);
+          ShowWindow(p.MainWindowHandle, SW_MAXIMIZE);
+          return;
+        }
+      } catch (InvalidOperationException) { } // processo già chiuso
+    });
+    t.IsBackground = true;
+    t.Start();
+    return p;
+  }
+
+  // Chiude la finestra della diagnostica insieme al gioco
+  public static void ChiudiDiagnostica(Process p) {
+    if (p == null) return;
+    try {
+      if (p.HasExited) return;
+      p.CloseMainWindow();
+      if (!p.WaitForExit(3000)) p.Kill();
+    } catch (InvalidOperationException) {
+    } catch (Win32Exception) {
+    }
+  }
+
   // Edge (Chromium) tiene aperto il file "lockfile" nella cartella del profilo finché gira, e lo cancella alla
   // chiusura: se c'è e non si riesce ad aprirlo, il gioco è ancora aperto
   public static bool ProfiloInUso(string profilo) {
@@ -557,6 +622,8 @@ class Finestra : Form {
 
   public int Codice = 1;
   readonly bool host;
+  readonly bool dev; // host in modalità DEV: apre anche la diagnostica di rete (Launcher.ApriDiagnostica)
+  Process diagnostica; // la finestra della diagnostica, chiusa insieme al gioco
   readonly string anteprima;
   string rete = Config.Rete, ip = Config.Host;
   bool modoLocale; // amico nella stessa casa: niente ZeroTier, si va dritti all'IP privato dell'host
@@ -579,8 +646,9 @@ class Finestra : Form {
   readonly Label spiega = new Label();
   static readonly Rectangle CAMPO = new Rectangle(0, 56, 330, 40); // riquadro del campo nel pannello dell'invito
 
-  public Finestra(bool host, string anteprima) {
+  public Finestra(bool host, string anteprima, bool dev) {
     this.host = host;
+    this.dev = host && dev;
     this.anteprima = anteprima;
     Text = "BS-BlockStrike";
     // L'icona è anche una risorsa dell'exe (/resource in crea-launcher.js): così il logo usa la versione a 48 px
@@ -677,6 +745,7 @@ class Finestra : Form {
     Controls.AddRange(new Control[] { riduci, chiudi, logo, titolo, versione, gioca, barra, pannelloInvito, stato, cambiaInvito });
     Shown += delegate { Inizia(); };
     FormClosed += delegate {
+      Launcher.ChiudiDiagnostica(diagnostica);
       if (locale != null) locale.Ferma();
       if (notifica != null) notifica.Dispose(); // senza, l'icona resta nell'area di notifica fino al passaggio del mouse
     };
@@ -944,6 +1013,8 @@ class Finestra : Form {
       // L'host e la versione del launcher li legge il gioco da /launcher.json (il server rifiuta i launcher vecchi)
       locale.Configurazione = Launcher.ConfigGioco(server, porta, Config.Versione);
       string profilo = Launcher.ApriGioco("http://127.0.0.1:" + Launcher.PORTA_LOCALE + "/");
+      // Modalità DEV: la diagnostica di rete arriva dal server dell'host (solo dal suo PC: server/diagnostica.js)
+      if (dev && diagnostica == null) diagnostica = Launcher.ApriDiagnostica(Indirizzo("127.0.0.1") + "rete.html");
       Codice = 0;
       gioca.Text = "GIOCO APERTO";
       Nascondi(profilo == null);
