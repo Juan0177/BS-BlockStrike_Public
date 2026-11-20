@@ -605,7 +605,7 @@ function assetti(a) {
   ];
   return el('section', { class: 'scheda assetti' },
     el('h4', { testo: 'Assetti' }),
-    el('p', { class: 'nota', testo: 'Cambia ottica passa da un assetto all\'altro. Le statistiche qui sopra e i grafici sono dell\'assetto SMG.' }),
+    el('p', { class: 'nota', testo: 'Il tasto Cambia ottica / assetto passa da un assetto all\'altro in 1,5 s. Le statistiche qui sopra e i grafici sono dell\'assetto SMG.' }),
     el('div', { class: 'tabella-scorre' }, el('table', { class: 'tabella' },
       el('thead', {}, el('tr', {}, el('th', { scope: 'col', testo: '' }), a.assetti.map((x) => el('th', { scope: 'col', testo: x.nome })))),
       el('tbody', {}, righe.map(([nome, f]) => el('tr', {}, el('th', { scope: 'row', testo: nome }), a.assetti.map((x) => el('td', { testo: f(x) }))))))));
