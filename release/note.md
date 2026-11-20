@@ -1,8 +1,10 @@
-- **Sciame - DEV, DEV vera**: compare sulla mappa a rotazione insieme alle altre armi DEV (e ha la sua postazione nel
-  poligono), con la skin Cosmos. Rispetto allo Sciame spara più veloce, è più preciso, arriva più lontano e ha sempre il
-  caricatore dritto (ricarica e movimento più rapidi).
-- **Sciame**: la versione che si sblocca con la sfida si chiama ora solo Sciame e tiene il tamburo da 90 e la sua skin.
-  Chi lo aveva nel loadout lo ritrova lì.
-- **Martello BR - DEV e Grandine - DEV un po' più deboli**: il Martello spara un po' più lento (138 colpi al minuto
-  invece di 150) e le sue esplosioni fanno 26 danni invece di 30; la Grandine fa 12 danni per pallino invece di 13 e
-  il suo fuoco 21 al secondo invece di 25. Martello BR e Grandine normali non cambiano.
+- **Giano, l'arma signature di Juan**: un fucile d'assalto con due assetti in un'arma sola. Si sblocca con la sfida
+  «20 uccisioni in una partita con fucili d'assalto o SMG».
+- **Assetto SMG** (si parte sempre da qui): calcio ripiegato e caricatore dritto da 30, agile e veloce, con la cadenza
+  che cresce tenendo premuto.
+- **Assetto LMG**: calcio aperto e tamburo da 75, cadenza fissa, quasi niente rinculo, zoom più alto ma movimento più
+  lento e niente sprint tattico (salvo con Maratoneta). Ogni 2 colpi a segno il nemico rallenta un po', fino a 8 volte.
+- **Cambia ottica** cambia assetto in 1,5 secondi, senza sparare, mirare o ricaricare. Ogni caricatore tiene i suoi
+  colpi e R ricarica quello montato dalla riserva comune.
+- **Aspetto**: modello 3D tutto suo, con skin fissa a frecce nere e blu e la scritta «Juan» in bianco su tutti e due i
+  fianchi.
