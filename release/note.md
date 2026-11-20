@@ -1,4 +1,6 @@
-- **Sciame col tamburo**: il tamburo dello Sciame era sparito dal modello (la regola dei due assetti del Giano nascondeva
-  ogni pezzo chiamato «tamburo»); ora si vede di nuovo, anche con gli altri accessori.
-- **Tuono senza calcio con l'impugnatura**: togliendo il calcio spariva anche il punto dove tenerlo; ora resta
-  un'impugnatura a pistola dietro il ponticello.
+- **Giano, mirini**: la tacca dietro era un blocco pieno e mirando spariva; ora è una tacca a U aperta e resta visibile,
+  col mirino davanti al centro.
+- **Giano, ottiche**: si possono montare le ottiche (non l'ibrida né la termica, perché sul Giano «Cambia ottica» cambia
+  l'assetto); con un'ottica i mirini metallici spariscono come sulle altre armi.
+- **Giano, scritta «Juan»**: più grande e sul fianco destro, dove il calcio ripiegato non la copre; l'ispezione gira
+  l'arma per mostrarla bene.
