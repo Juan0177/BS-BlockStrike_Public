@@ -321,3 +321,7 @@ h5 { font-size: 0.85rem; margin: 0 0 6px; color: var(--testo); }
 .accessori-dev dt { font-weight: 600; }
 .accessori-dev dd { margin: 0; color: var(--secondario); font-size: 0.9rem; }
 @media (max-width: 720px) { .arma-dev { grid-template-columns: 1fr; } }
+/* Assetti del Giano: le colonne dei valori allineate a destra, righe non cliccabili */
+.assetti .tabella th:nth-child(n+2), .assetti .tabella td:nth-child(n+2) { text-align: right; }
+.assetti .tabella tbody tr { cursor: default; }
+.assetti .tabella tbody tr:hover { background: none; }

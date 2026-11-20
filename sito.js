@@ -583,8 +583,32 @@ function dettaglio(a) {
     el('div', { class: 'arma-testa' }, el('h3', { testo: a.nome }), el('span', { class: 'classe', testo: `${a.nomeClasse} · ${a.slot === 'primaria' ? 'primaria' : 'secondaria'}` })),
     el('p', { class: 'speciale', testo: a.speciale ?? (a.tipo === 'mischia' ? 'Un colpo, una uccisione.' : a.esplosione ? 'Il razzo vola dritto ed esplode all\'impatto.' : '') }),
     el('dl', { class: 'statistiche' }, stat.map(([k, v]) => el('div', {}, el('dt', { testo: k }), el('dd', { testo: v })))),
+    assetti(a),
     aspetto(a),
     a.ttk ? pannelliArma(a) : null));
+}
+
+// Armi con due assetti (Giano): le statistiche di ognuno una accanto all'altra (quelle sopra e i grafici sono dell'SMG)
+function assetti(a) {
+  if (!a.assetti) return null;
+  const righe = [
+    ['Danno', (x) => `${danno(x)} (cala da ${x.cadutaInizio} a ${x.cadutaFine} m)`],
+    ['Colpi al minuto', (x) => cadenza(x)],
+    ['Caricatore', (x) => `${x.caricatore}`],
+    ['Ricarica', (x) => `${num(x.ricarica, 1)} s`],
+    ['Mobilità', (x) => `${Math.round(x.velocita * 100)}%`],
+    ['Tempo di mira', (x) => `${num(x.tempoMira, 2)} s`],
+    ['Ingrandimento', (x) => `${num(x.zoom, 2)}×`],
+    ['TTK pancia da vicino', (x) => secondi(x.ttk.pancia)],
+    ['TTK testa da vicino', (x) => secondi(x.ttk.testa)],
+    ['Rallenta', (x) => (x.rallenta ? `−${Math.round(x.rallenta.rallentamento * 100)}% ogni ${x.rallenta.colpiPerStack} colpi a segno (fino a ${x.rallenta.stackMax}, per ${x.rallenta.durata} s)` : '—')],
+  ];
+  return el('section', { class: 'scheda assetti' },
+    el('h4', { testo: 'Assetti' }),
+    el('p', { class: 'nota', testo: 'Cambia ottica passa da un assetto all\'altro. Le statistiche qui sopra e i grafici sono dell\'assetto SMG.' }),
+    el('div', { class: 'tabella-scorre' }, el('table', { class: 'tabella' },
+      el('thead', {}, el('tr', {}, el('th', { scope: 'col', testo: '' }), a.assetti.map((x) => el('th', { scope: 'col', testo: x.nome })))),
+      el('tbody', {}, righe.map(([nome, f]) => el('tr', {}, el('th', { scope: 'row', testo: nome }), a.assetti.map((x) => el('td', { testo: f(x) }))))))));
 }
 
 // Foto dell'arma: base e, se monta accessori, la configurazione per stabilità e danno e quella per velocità.
